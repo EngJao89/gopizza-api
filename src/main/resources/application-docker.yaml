@@ -1,10 +1,8 @@
 spring:
-  application:
-    name: gopizza
   datasource:
-    url: jdbc:postgresql://localhost:5432/gopizza
-    username: ${POSTGRES_USER}
-    password: ${POSTGRES_PASSWORD}
+    url: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-gopizza}
+    username: ${POSTGRES_USER:-gopizza}
+    password: ${POSTGRES_PASSWORD:-gopizza123}
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
@@ -22,3 +20,4 @@ springdoc:
     path: /swagger-ui.html
   default-consumes-media-type: application/json
   default-produces-media-type: application/json
+
