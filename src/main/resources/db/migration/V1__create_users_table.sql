@@ -2,25 +2,18 @@
 -- Description: Creates the users table for storing user information
 
 CREATE TABLE IF NOT EXISTS users (
-    id BIGSERIAL PRIMARY KEY,
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
     email VARCHAR(100) NOT NULL UNIQUE,
     name VARCHAR(100) NOT NULL,
     phone VARCHAR(20) NOT NULL,
     password VARCHAR(255) NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP,
+    updated_at TIMESTAMP NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
     CONSTRAINT users_email_unique UNIQUE (email)
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Create index on email for faster lookups
 CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
 
--- Add comment to table
-COMMENT ON TABLE users IS 'Table to store user information';
-COMMENT ON COLUMN users.id IS 'Primary key, auto-incremented';
-COMMENT ON COLUMN users.email IS 'User email address, must be unique';
-COMMENT ON COLUMN users.name IS 'User full name';
-COMMENT ON COLUMN users.phone IS 'User phone number';
-COMMENT ON COLUMN users.password IS 'User password (should be hashed)';
-COMMENT ON COLUMN users.created_at IS 'Timestamp when the user was created';
-COMMENT ON COLUMN users.updated_at IS 'Timestamp when the user was last updated';
+-- Add comments to table and columns (MySQL syntax)
+ALTER TABLE users COMMENT = 'Table to store user information';

@@ -1,45 +1,49 @@
 services:
-  postgres:
-    image: postgres:16-alpine
-    container_name: gopizza-postgres
+  mysql:
+    image: mysql:8.0
+    container_name: gopizza-api-mysql
     environment:
-      POSTGRES_DB: ${POSTGRES_DB}
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root_password}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-gopizza_db}
+      MYSQL_USER: ${MYSQL_USER:-app_user}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-minha_senha}
     ports:
-      - "5433:5432"
+      - "3307:3306"  # Porta externa 3307 para evitar conflito com MySQL local
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - mysql_data:/var/lib/mysql
+    networks:
+      - rest-api-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -proot_password || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 5
-    networks:
-      - gopizza-network
+    command: --default-authentication-plugin=mysql_native_password
 
   app:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: gopizza-app
+    container_name: gopizza-api-app
+    environment:
+      MYSQL_HOST: ${MYSQL_HOST:-mysql}
+      MYSQL_PORT: ${MYSQL_PORT:-3306}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-gopizza_db}
+      MYSQL_USER: ${MYSQL_USER:-app_user}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-minha_senha}
+      SPRING_PROFILES_ACTIVE: docker
     ports:
       - "8080:8080"
-    environment:
-      SPRING_PROFILES_ACTIVE: docker
-      POSTGRES_DB: ${POSTGRES_DB}
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     depends_on:
-      postgres:
+      mysql:
         condition: service_healthy
     networks:
-      - gopizza-network
+      - rest-api-network
+    restart: unless-stopped
 
 volumes:
-  postgres_data:
+  mysql_data:
 
 networks:
-  gopizza-network:
+  rest-api-network:
     driver: bridge
-
