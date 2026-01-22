@@ -6,6 +6,7 @@ import com.gopizza.dto.UserResponseDTO;
 import com.gopizza.model.User;
 import com.gopizza.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,10 +18,12 @@ import java.util.stream.Collectors;
 public class UserService {
 
 	private final UserRepository userRepository;
+	private final PasswordEncoder passwordEncoder;
 
 	@Autowired
-	public UserService(UserRepository userRepository) {
+	public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
 		this.userRepository = userRepository;
+		this.passwordEncoder = passwordEncoder;
 	}
 
 	@Transactional
@@ -39,7 +42,7 @@ public class UserService {
 		user.setEmail(createUserDTO.getEmail());
 		user.setName(createUserDTO.getName());
 		user.setPhone(createUserDTO.getPhone());
-		user.setPassword(createUserDTO.getPassword()); // TODO: Implementar hash da senha
+		user.setPassword(passwordEncoder.encode(createUserDTO.getPassword()));
 		user.setBirthday(createUserDTO.getBirthday());
 		user.setCpf(createUserDTO.getCpf());
 
@@ -73,7 +76,6 @@ public class UserService {
 		User user = userRepository.findById(id)
 				.orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado com ID: " + id));
 
-		// Verificar se o email está sendo alterado e se já existe
 		if (!user.getEmail().equals(updateUserDTO.getEmail()) &&
 				userRepository.existsByEmail(updateUserDTO.getEmail())) {
 			throw new IllegalArgumentException("Email já está em uso: " + updateUserDTO.getEmail());
@@ -91,7 +93,7 @@ public class UserService {
 		user.setBirthday(updateUserDTO.getBirthday());
 		user.setCpf(updateUserDTO.getCpf());
 		if (updateUserDTO.getPassword() != null && !updateUserDTO.getPassword().isEmpty()) {
-			user.setPassword(updateUserDTO.getPassword()); // TODO: Implementar hash da senha
+			user.setPassword(passwordEncoder.encode(updateUserDTO.getPassword()));
 		}
 
 		User updatedUser = userRepository.save(user);
@@ -121,7 +123,7 @@ public class UserService {
 		}
 
 		if (updateUserDTO.getPassword() != null && !updateUserDTO.getPassword().trim().isEmpty()) {
-			user.setPassword(updateUserDTO.getPassword()); // TODO: Implementar hash da senha
+			user.setPassword(passwordEncoder.encode(updateUserDTO.getPassword()));
 		}
 
 		if (updateUserDTO.getBirthday() != null) {
@@ -130,7 +132,6 @@ public class UserService {
 
 		if (updateUserDTO.getCpf() != null && !updateUserDTO.getCpf().trim().isEmpty()) {
 			String newCpf = updateUserDTO.getCpf().trim();
-			// Verificar se o CPF está sendo alterado e se já existe
 			if (user.getCpf() == null || !newCpf.equals(user.getCpf())) {
 				if (userRepository.existsByCpf(newCpf)) {
 					throw new IllegalArgumentException("CPF já está em uso: " + newCpf);
@@ -151,7 +152,7 @@ public class UserService {
 		userRepository.deleteById(id);
 	}
 
-	private UserResponseDTO convertToDTO(User user) {
+	public UserResponseDTO convertToDTO(User user) {
 		return new UserResponseDTO(
 				user.getId(),
 				user.getEmail(),
