@@ -29,6 +29,8 @@ spring:
     locations: classpath:db/migration
     validate-on-migrate: false
     clean-disabled: true
+  jackson:
+    default-property-inclusion: always
 
 springdoc:
   api-docs:

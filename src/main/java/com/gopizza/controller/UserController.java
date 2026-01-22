@@ -26,7 +26,10 @@ public class UserController {
 	}
 
 	@PostMapping
-	@Operation(summary = "Criar novo usuário", description = "Cria um novo usuário no sistema")
+	@Operation(
+		summary = "Criar novo usuário",
+		description = "Cria um novo usuário no sistema. Os campos obrigatórios são: email, name, phone e password. Os campos birthday e cpf são opcionais."
+	)
 	public ResponseEntity<UserResponseDTO> createUser(@Valid @RequestBody CreateUserDTO createUserDTO) {
 		UserResponseDTO userResponse = userService.createUser(createUserDTO);
 		return ResponseEntity.status(HttpStatus.CREATED).body(userResponse);
@@ -54,7 +57,10 @@ public class UserController {
 	}
 
 	@PutMapping("/{id}")
-	@Operation(summary = "Atualizar usuário", description = "Atualiza os dados de um usuário existente")
+	@Operation(
+		summary = "Atualizar usuário",
+		description = "Atualiza os dados de um usuário existente. Todos os campos podem ser atualizados, incluindo os novos campos birthday e cpf."
+	)
 	public ResponseEntity<UserResponseDTO> updateUser(
 			@PathVariable Long id,
 			@Valid @RequestBody CreateUserDTO updateUserDTO) {

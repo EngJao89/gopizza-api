@@ -1,6 +1,7 @@
 package com.gopizza.model;
 
 import jakarta.persistence.*;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
@@ -23,6 +24,12 @@ public class User {
 
 	@Column(nullable = false)
 	private String password;
+
+	@Column(name = "birthday")
+	private LocalDate birthday;
+
+	@Column(name = "cpf", length = 11)
+	private String cpf;
 
 	@Column(name = "created_at", nullable = false, updatable = false)
 	private LocalDateTime createdAt;
@@ -50,6 +57,15 @@ public class User {
 		this.name = name;
 		this.phone = phone;
 		this.password = password;
+	}
+
+	public User(String email, String name, String phone, String password, LocalDate birthday, String cpf) {
+		this.email = email;
+		this.name = name;
+		this.phone = phone;
+		this.password = password;
+		this.birthday = birthday;
+		this.cpf = cpf;
 	}
 
 	public Long getId() {
@@ -108,6 +124,21 @@ public class User {
 		this.updatedAt = updatedAt;
 	}
 
+	public LocalDate getBirthday() {
+		return birthday;
+	}
+
+	public void setBirthday(LocalDate birthday) {
+		this.birthday = birthday;
+	}
+
+	public String getCpf() {
+		return cpf;
+	}
+
+	public void setCpf(String cpf) {
+		this.cpf = cpf;
+	}
 
 	@Override
 	public boolean equals(Object o) {
@@ -129,6 +160,8 @@ public class User {
 				", email='" + email + '\'' +
 				", name='" + name + '\'' +
 				", phone='" + phone + '\'' +
+				", birthday=" + birthday +
+				", cpf='" + cpf + '\'' +
 				", createdAt=" + createdAt +
 				", updatedAt=" + updatedAt +
 				'}';
