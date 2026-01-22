@@ -23,17 +23,23 @@ public class UserService {
 
 	@Transactional
 	public UserResponseDTO createUser(CreateUserDTO createUserDTO) {
-		// Verificar se o email já existe
 		if (userRepository.existsByEmail(createUserDTO.getEmail())) {
 			throw new IllegalArgumentException("Email já está em uso: " + createUserDTO.getEmail());
 		}
 
-		// Criar novo usuário
+		if (createUserDTO.getCpf() != null && !createUserDTO.getCpf().isEmpty()) {
+			if (userRepository.existsByCpf(createUserDTO.getCpf())) {
+				throw new IllegalArgumentException("CPF já está em uso: " + createUserDTO.getCpf());
+			}
+		}
+
 		User user = new User();
 		user.setEmail(createUserDTO.getEmail());
 		user.setName(createUserDTO.getName());
 		user.setPhone(createUserDTO.getPhone());
 		user.setPassword(createUserDTO.getPassword()); // TODO: Implementar hash da senha
+		user.setBirthday(createUserDTO.getBirthday());
+		user.setCpf(createUserDTO.getCpf());
 
 		User savedUser = userRepository.save(user);
 		return convertToDTO(savedUser);
@@ -71,9 +77,17 @@ public class UserService {
 			throw new IllegalArgumentException("Email já está em uso: " + updateUserDTO.getEmail());
 		}
 
+		if (updateUserDTO.getCpf() != null && !updateUserDTO.getCpf().isEmpty() &&
+				!updateUserDTO.getCpf().equals(user.getCpf()) &&
+				userRepository.existsByCpf(updateUserDTO.getCpf())) {
+			throw new IllegalArgumentException("CPF já está em uso: " + updateUserDTO.getCpf());
+		}
+
 		user.setEmail(updateUserDTO.getEmail());
 		user.setName(updateUserDTO.getName());
 		user.setPhone(updateUserDTO.getPhone());
+		user.setBirthday(updateUserDTO.getBirthday());
+		user.setCpf(updateUserDTO.getCpf());
 		if (updateUserDTO.getPassword() != null && !updateUserDTO.getPassword().isEmpty()) {
 			user.setPassword(updateUserDTO.getPassword()); // TODO: Implementar hash da senha
 		}
@@ -96,6 +110,8 @@ public class UserService {
 				user.getEmail(),
 				user.getName(),
 				user.getPhone(),
+				user.getBirthday(),
+				user.getCpf(),
 				user.getCreatedAt(),
 				user.getUpdatedAt()
 		);
