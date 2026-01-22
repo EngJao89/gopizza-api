@@ -46,6 +46,14 @@ public class GlobalExceptionHandler {
 
 	@ExceptionHandler(Exception.class)
 	public ResponseEntity<ErrorResponse> handleGenericException(Exception ex) {
+		// Log da exceção para debug
+		ex.printStackTrace();
+		System.err.println("Erro capturado: " + ex.getClass().getName() + " - " + ex.getMessage());
+		if (ex.getCause() != null) {
+			System.err.println("Causa: " + ex.getCause().getMessage());
+			ex.getCause().printStackTrace();
+		}
+		
 		ErrorResponse error = new ErrorResponse(
 				LocalDateTime.now(),
 				HttpStatus.INTERNAL_SERVER_ERROR.value(),
