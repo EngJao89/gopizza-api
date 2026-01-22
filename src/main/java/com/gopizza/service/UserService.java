@@ -1,6 +1,7 @@
 package com.gopizza.service;
 
 import com.gopizza.dto.CreateUserDTO;
+import com.gopizza.dto.UpdateUserDTO;
 import com.gopizza.dto.UserResponseDTO;
 import com.gopizza.model.User;
 import com.gopizza.repository.UserRepository;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -46,7 +48,7 @@ public class UserService {
 	}
 
 	@Transactional(readOnly = true)
-	public UserResponseDTO getUserById(Long id) {
+	public UserResponseDTO getUserById(UUID id) {
 		User user = userRepository.findById(id)
 				.orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado com ID: " + id));
 		return convertToDTO(user);
@@ -67,7 +69,7 @@ public class UserService {
 	}
 
 	@Transactional
-	public UserResponseDTO updateUser(Long id, CreateUserDTO updateUserDTO) {
+	public UserResponseDTO updateUser(UUID id, CreateUserDTO updateUserDTO) {
 		User user = userRepository.findById(id)
 				.orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado com ID: " + id));
 
@@ -97,7 +99,52 @@ public class UserService {
 	}
 
 	@Transactional
-	public void deleteUser(Long id) {
+	public UserResponseDTO updateUserPartial(UUID id, UpdateUserDTO updateUserDTO) {
+		User user = userRepository.findById(id)
+				.orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado com ID: " + id));
+
+		if (updateUserDTO.getEmail() != null && !updateUserDTO.getEmail().trim().isEmpty()) {
+			String newEmail = updateUserDTO.getEmail().trim();
+			if (!user.getEmail().equals(newEmail) &&
+					userRepository.existsByEmail(newEmail)) {
+				throw new IllegalArgumentException("Email já está em uso: " + newEmail);
+			}
+			user.setEmail(newEmail);
+		}
+
+		if (updateUserDTO.getName() != null && !updateUserDTO.getName().trim().isEmpty()) {
+			user.setName(updateUserDTO.getName().trim());
+		}
+
+		if (updateUserDTO.getPhone() != null && !updateUserDTO.getPhone().trim().isEmpty()) {
+			user.setPhone(updateUserDTO.getPhone().trim());
+		}
+
+		if (updateUserDTO.getPassword() != null && !updateUserDTO.getPassword().trim().isEmpty()) {
+			user.setPassword(updateUserDTO.getPassword()); // TODO: Implementar hash da senha
+		}
+
+		if (updateUserDTO.getBirthday() != null) {
+			user.setBirthday(updateUserDTO.getBirthday());
+		}
+
+		if (updateUserDTO.getCpf() != null && !updateUserDTO.getCpf().trim().isEmpty()) {
+			String newCpf = updateUserDTO.getCpf().trim();
+			// Verificar se o CPF está sendo alterado e se já existe
+			if (user.getCpf() == null || !newCpf.equals(user.getCpf())) {
+				if (userRepository.existsByCpf(newCpf)) {
+					throw new IllegalArgumentException("CPF já está em uso: " + newCpf);
+				}
+			}
+			user.setCpf(newCpf);
+		}
+
+		User updatedUser = userRepository.save(user);
+		return convertToDTO(updatedUser);
+	}
+
+	@Transactional
+	public void deleteUser(UUID id) {
 		if (!userRepository.existsById(id)) {
 			throw new IllegalArgumentException("Usuário não encontrado com ID: " + id);
 		}

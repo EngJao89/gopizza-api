@@ -3,12 +3,13 @@ package com.gopizza.dto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Schema(description = "DTO de resposta com dados do usuário")
 public class UserResponseDTO {
 
-	@Schema(description = "ID único do usuário", example = "1")
-	private Long id;
+	@Schema(description = "ID único do usuário (UUID)", example = "550e8400-e29b-41d4-a716-446655440000")
+	private UUID id;
 
 	@Schema(description = "Email do usuário", example = "joao.silva@example.com")
 	private String email;
@@ -35,7 +36,7 @@ public class UserResponseDTO {
 	public UserResponseDTO() {
 	}
 
-	public UserResponseDTO(Long id, String email, String name, String phone, LocalDateTime createdAt, LocalDateTime updatedAt) {
+	public UserResponseDTO(UUID id, String email, String name, String phone, LocalDateTime createdAt, LocalDateTime updatedAt) {
 		this.id = id;
 		this.email = email;
 		this.name = name;
@@ -44,7 +45,7 @@ public class UserResponseDTO {
 		this.updatedAt = updatedAt;
 	}
 
-	public UserResponseDTO(Long id, String email, String name, String phone, LocalDate birthday, String cpf, LocalDateTime createdAt, LocalDateTime updatedAt) {
+	public UserResponseDTO(UUID id, String email, String name, String phone, LocalDate birthday, String cpf, LocalDateTime createdAt, LocalDateTime updatedAt) {
 		this.id = id;
 		this.email = email;
 		this.name = name;
@@ -56,11 +57,11 @@ public class UserResponseDTO {
 	}
 
 	// Getters and Setters
-	public Long getId() {
+	public UUID getId() {
 		return id;
 	}
 
-	public void setId(Long id) {
+	public void setId(UUID id) {
 		this.id = id;
 	}
 

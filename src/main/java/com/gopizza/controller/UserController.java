@@ -1,6 +1,7 @@
 package com.gopizza.controller;
 
 import com.gopizza.dto.CreateUserDTO;
+import com.gopizza.dto.UpdateUserDTO;
 import com.gopizza.dto.UserResponseDTO;
 import com.gopizza.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -12,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/users")
@@ -36,8 +38,8 @@ public class UserController {
 	}
 
 	@GetMapping("/{id}")
-	@Operation(summary = "Buscar usuário por ID", description = "Retorna os dados de um usuário específico")
-	public ResponseEntity<UserResponseDTO> getUserById(@PathVariable Long id) {
+	@Operation(summary = "Buscar usuário por ID", description = "Retorna os dados de um usuário específico usando UUID")
+	public ResponseEntity<UserResponseDTO> getUserById(@PathVariable UUID id) {
 		UserResponseDTO userResponse = userService.getUserById(id);
 		return ResponseEntity.ok(userResponse);
 	}
@@ -59,18 +61,30 @@ public class UserController {
 	@PutMapping("/{id}")
 	@Operation(
 		summary = "Atualizar usuário",
-		description = "Atualiza os dados de um usuário existente. Todos os campos podem ser atualizados, incluindo os novos campos birthday e cpf."
+		description = "Atualiza os dados de um usuário existente usando UUID. Todos os campos podem ser atualizados, incluindo os novos campos birthday e cpf."
 	)
 	public ResponseEntity<UserResponseDTO> updateUser(
-			@PathVariable Long id,
+			@PathVariable UUID id,
 			@Valid @RequestBody CreateUserDTO updateUserDTO) {
 		UserResponseDTO userResponse = userService.updateUser(id, updateUserDTO);
 		return ResponseEntity.ok(userResponse);
 	}
 
+	@PatchMapping("/{id}")
+	@Operation(
+		summary = "Atualizar usuário parcialmente",
+		description = "Atualiza parcialmente os dados de um usuário existente usando UUID. Apenas os campos enviados serão atualizados, os demais permanecerão inalterados."
+	)
+	public ResponseEntity<UserResponseDTO> updateUserPartial(
+			@PathVariable UUID id,
+			@Valid @RequestBody UpdateUserDTO updateUserDTO) {
+		UserResponseDTO userResponse = userService.updateUserPartial(id, updateUserDTO);
+		return ResponseEntity.ok(userResponse);
+	}
+
 	@DeleteMapping("/{id}")
-	@Operation(summary = "Deletar usuário", description = "Remove um usuário do sistema")
-	public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
+	@Operation(summary = "Deletar usuário", description = "Remove um usuário do sistema usando UUID")
+	public ResponseEntity<Void> deleteUser(@PathVariable UUID id) {
 		userService.deleteUser(id);
 		return ResponseEntity.noContent().build();
 	}
