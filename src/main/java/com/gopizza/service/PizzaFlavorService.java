@@ -34,6 +34,7 @@ public class PizzaFlavorService {
 		pizzaFlavor.setDescription(createPizzaFlavorDTO.getDescription());
 		pizzaFlavor.setAvailableOptions(createPizzaFlavorDTO.getAvailableOptions());
 		pizzaFlavor.setSizesAndPrices(createPizzaFlavorDTO.getSizesAndPrices());
+		pizzaFlavor.setImageUrl(createPizzaFlavorDTO.getImageUrl());
 
 		PizzaFlavor savedPizzaFlavor = pizzaFlavorRepository.save(pizzaFlavor);
 		return convertToDTO(savedPizzaFlavor);
@@ -74,6 +75,7 @@ public class PizzaFlavorService {
 		pizzaFlavor.setDescription(updatePizzaFlavorDTO.getDescription());
 		pizzaFlavor.setAvailableOptions(updatePizzaFlavorDTO.getAvailableOptions());
 		pizzaFlavor.setSizesAndPrices(updatePizzaFlavorDTO.getSizesAndPrices());
+		pizzaFlavor.setImageUrl(updatePizzaFlavorDTO.getImageUrl());
 
 		PizzaFlavor updatedPizzaFlavor = pizzaFlavorRepository.save(pizzaFlavor);
 		return convertToDTO(updatedPizzaFlavor);
@@ -105,6 +107,10 @@ public class PizzaFlavorService {
 			pizzaFlavor.setSizesAndPrices(updatePizzaFlavorDTO.getSizesAndPrices());
 		}
 
+		if (updatePizzaFlavorDTO.getImageUrl() != null && !updatePizzaFlavorDTO.getImageUrl().trim().isEmpty()) {
+			pizzaFlavor.setImageUrl(updatePizzaFlavorDTO.getImageUrl().trim());
+		}
+
 		PizzaFlavor updatedPizzaFlavor = pizzaFlavorRepository.save(pizzaFlavor);
 		return convertToDTO(updatedPizzaFlavor);
 	}
@@ -124,6 +130,7 @@ public class PizzaFlavorService {
 				pizzaFlavor.getDescription(),
 				pizzaFlavor.getAvailableOptions(),
 				pizzaFlavor.getSizesAndPrices(),
+				pizzaFlavor.getImageUrl(),
 				pizzaFlavor.getCreatedAt(),
 				pizzaFlavor.getUpdatedAt()
 		);

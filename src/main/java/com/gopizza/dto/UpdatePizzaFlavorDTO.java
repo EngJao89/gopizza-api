@@ -23,6 +23,10 @@ public class UpdatePizzaFlavorDTO {
 	@Schema(description = "Tamanhos disponíveis e seus valores (P, M, G)", example = "{\"P\": 25.00, \"M\": 35.00, \"G\": 45.00}")
 	private Map<@NotBlank String, @NotNull @DecimalMin(value = "0.01", message = "Preço deve ser maior que zero") @Digits(integer = 10, fraction = 2, message = "Preço deve ter no máximo 2 casas decimais") BigDecimal> sizesAndPrices;
 
+	@Schema(description = "URL ou caminho da imagem do sabor de pizza", example = "/api/images/550e8400-e29b-41d4-a716-446655440000.jpg")
+	@Size(max = 500, message = "URL da imagem deve ter no máximo 500 caracteres")
+	private String imageUrl;
+
 	public UpdatePizzaFlavorDTO() {
 	}
 
@@ -57,5 +61,13 @@ public class UpdatePizzaFlavorDTO {
 
 	public void setSizesAndPrices(Map<String, BigDecimal> sizesAndPrices) {
 		this.sizesAndPrices = sizesAndPrices;
+	}
+
+	public String getImageUrl() {
+		return imageUrl;
+	}
+
+	public void setImageUrl(String imageUrl) {
+		this.imageUrl = imageUrl;
 	}
 }
