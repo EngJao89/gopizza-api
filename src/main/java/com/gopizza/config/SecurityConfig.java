@@ -48,11 +48,12 @@ public class SecurityConfig {
 			.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 			.authorizeHttpRequests(auth -> auth
 				.requestMatchers("/api/auth/**").permitAll()
-				.requestMatchers("/api/users/**").permitAll() // Todas as rotas de usuário sem autenticação
+				.requestMatchers("/api/users/**").permitAll()
+				.requestMatchers("/api/pizza-flavors/**").permitAll()
 				.requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/swagger-ui.html/**", "/swagger-ui/index.html").permitAll()
 				.requestMatchers("/api-docs/**", "/v3/api-docs/**", "/v3/api-docs.yaml", "/v3/api-docs.json").permitAll()
 				.requestMatchers("/api").permitAll()
-				.requestMatchers("/actuator/health", "/health").permitAll() // Health check endpoints
+				.requestMatchers("/actuator/health", "/health").permitAll()
 				.requestMatchers("/error", "/favicon.ico").permitAll()
 				.requestMatchers("/").permitAll()
 				.anyRequest().authenticated()
