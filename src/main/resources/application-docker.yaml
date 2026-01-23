@@ -33,6 +33,10 @@ spring:
     check-location: true
   jackson:
     default-property-inclusion: always
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 5MB
 
 springdoc:
   api-docs:
@@ -51,3 +55,6 @@ logging:
     org.springframework.jdbc: DEBUG
     com.zaxxer.hikari: DEBUG
     org.hibernate: INFO
+
+file:
+  upload-dir: uploads/images

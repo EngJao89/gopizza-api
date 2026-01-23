@@ -31,6 +31,9 @@ public class PizzaFlavor {
 	@Column(name = "sizes_and_prices", nullable = false, columnDefinition = "jsonb")
 	private Map<String, BigDecimal> sizesAndPrices = new HashMap<>();
 
+	@Column(name = "image_url", length = 500)
+	private String imageUrl;
+
 	@Column(name = "created_at", nullable = false, updatable = false)
 	private LocalDateTime createdAt;
 
@@ -116,6 +119,14 @@ public class PizzaFlavor {
 		this.updatedAt = updatedAt;
 	}
 
+	public String getImageUrl() {
+		return imageUrl;
+	}
+
+	public void setImageUrl(String imageUrl) {
+		this.imageUrl = imageUrl;
+	}
+
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
@@ -137,6 +148,7 @@ public class PizzaFlavor {
 				", description='" + description + '\'' +
 				", availableOptions=" + availableOptions +
 				", sizesAndPrices=" + sizesAndPrices +
+				", imageUrl='" + imageUrl + '\'' +
 				", createdAt=" + createdAt +
 				", updatedAt=" + updatedAt +
 				'}';

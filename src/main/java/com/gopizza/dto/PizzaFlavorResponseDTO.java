@@ -25,6 +25,9 @@ public class PizzaFlavorResponseDTO {
 	@Schema(description = "Tamanhos disponíveis e seus valores", example = "{\"P\": 25.00, \"M\": 35.00, \"G\": 45.00}")
 	private Map<String, BigDecimal> sizesAndPrices;
 
+	@Schema(description = "URL ou caminho da imagem do sabor de pizza", example = "/api/images/550e8400-e29b-41d4-a716-446655440000.jpg")
+	private String imageUrl;
+
 	@Schema(description = "Data de criação do registro")
 	private LocalDateTime createdAt;
 
@@ -35,12 +38,13 @@ public class PizzaFlavorResponseDTO {
 	}
 
 	public PizzaFlavorResponseDTO(UUID id, String name, String description, List<String> availableOptions,
-			Map<String, BigDecimal> sizesAndPrices, LocalDateTime createdAt, LocalDateTime updatedAt) {
+			Map<String, BigDecimal> sizesAndPrices, String imageUrl, LocalDateTime createdAt, LocalDateTime updatedAt) {
 		this.id = id;
 		this.name = name;
 		this.description = description;
 		this.availableOptions = availableOptions;
 		this.sizesAndPrices = sizesAndPrices;
+		this.imageUrl = imageUrl;
 		this.createdAt = createdAt;
 		this.updatedAt = updatedAt;
 	}
@@ -100,5 +104,13 @@ public class PizzaFlavorResponseDTO {
 
 	public void setUpdatedAt(LocalDateTime updatedAt) {
 		this.updatedAt = updatedAt;
+	}
+
+	public String getImageUrl() {
+		return imageUrl;
+	}
+
+	public void setImageUrl(String imageUrl) {
+		this.imageUrl = imageUrl;
 	}
 }
