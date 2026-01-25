@@ -30,11 +30,14 @@ public class FileStorageService {
 	}
 
 	public String storeFile(MultipartFile file) {
+		return storeFile(file, null);
+	}
+
+	public String storeFile(MultipartFile file, String name) {
 		if (file.isEmpty()) {
 			throw new RuntimeException("Arquivo vazio não pode ser salvo");
 		}
 
-		// Validar tipo de arquivo
 		String contentType = file.getContentType();
 		if (contentType == null || !contentType.startsWith("image/")) {
 			throw new RuntimeException("Apenas arquivos de imagem são permitidos");
@@ -46,20 +49,35 @@ public class FileStorageService {
 		}
 
 		try {
-			// Gerar nome único para o arquivo
 			String originalFilename = Objects.requireNonNull(file.getOriginalFilename());
 			String fileExtension = "";
 			int lastDotIndex = originalFilename.lastIndexOf('.');
 			if (lastDotIndex > 0) {
 				fileExtension = originalFilename.substring(lastDotIndex);
 			}
-			
-			String fileName = UUID.randomUUID().toString() + fileExtension;
+
+			String fileName;
+			if (name != null && !name.trim().isEmpty()) {
+				String sanitizedName = name.trim()
+						.toLowerCase()
+						.replaceAll("[^a-z0-9\\s-]", "")
+						.replaceAll("\\s+", "-") 
+						.replaceAll("-+", "-")
+						.replaceAll("^-|-$", "");
+
+				if (sanitizedName.length() > 50) {
+					sanitizedName = sanitizedName.substring(0, 50);
+				}
+
+				fileName = sanitizedName + "-" + UUID.randomUUID().toString() + fileExtension;
+			} else {
+				fileName = UUID.randomUUID().toString() + fileExtension;
+			}
+
 			Path targetLocation = this.fileStorageLocation.resolve(fileName);
-			
-			// Salvar arquivo
+
 			Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
-			
+
 			return fileName;
 		} catch (IOException ex) {
 			throw new RuntimeException("Erro ao salvar arquivo: " + file.getOriginalFilename(), ex);

@@ -27,16 +27,21 @@ public class ImageController {
 	@PostMapping("/upload")
 	@Operation(
 		summary = "Upload de imagem",
-		description = "Faz upload de uma imagem e retorna o nome do arquivo e URL para acesso"
+		description = "Faz upload de uma imagem com um nome opcional para facilitar identificação. Retorna o nome do arquivo e URL para acesso."
 	)
-	public ResponseEntity<Map<String, String>> uploadFile(@RequestParam("file") MultipartFile file) {
-		String fileName = fileStorageService.storeFile(file);
+	public ResponseEntity<Map<String, String>> uploadFile(
+			@RequestParam("file") MultipartFile file,
+			@RequestParam(value = "name", required = false) String name) {
+		String fileName = fileStorageService.storeFile(file, name);
 		String fileDownloadUri = "/api/images/" + fileName;
 		
 		Map<String, String> response = new HashMap<>();
 		response.put("fileName", fileName);
 		response.put("fileDownloadUri", fileDownloadUri);
 		response.put("message", "Upload realizado com sucesso");
+		if (name != null && !name.trim().isEmpty()) {
+			response.put("name", name);
+		}
 		
 		return ResponseEntity.ok(response);
 	}
