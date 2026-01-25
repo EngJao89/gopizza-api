@@ -1,5 +1,6 @@
 package com.gopizza.controller;
 
+import com.gopizza.dto.ImageInfoDTO;
 import com.gopizza.service.FileStorageService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -11,7 +12,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/images")
@@ -22,6 +25,32 @@ public class ImageController {
 
 	public ImageController(FileStorageService fileStorageService) {
 		this.fileStorageService = fileStorageService;
+	}
+
+	@GetMapping
+	@Operation(
+		summary = "Listar todas as imagens",
+		description = "Retorna uma lista com todas as imagens disponíveis, incluindo nome, URL, tamanho e data de modificação"
+	)
+	public ResponseEntity<List<ImageInfoDTO>> listAllImages() {
+		List<FileStorageService.ImageFileInfo> fileInfos = fileStorageService.listAllFiles();
+		
+		List<ImageInfoDTO> images = fileInfos.stream()
+				.map(fileInfo -> {
+					String fileDownloadUri = "/api/images/" + fileInfo.getFileName();
+					String sizeFormatted = fileStorageService.formatFileSize(fileInfo.getSize());
+					
+					return new ImageInfoDTO(
+							fileInfo.getFileName(),
+							fileDownloadUri,
+							fileInfo.getSize(),
+							sizeFormatted,
+							fileInfo.getLastModified()
+					);
+				})
+				.collect(Collectors.toList());
+		
+		return ResponseEntity.ok(images);
 	}
 
 	@PostMapping("/upload")
