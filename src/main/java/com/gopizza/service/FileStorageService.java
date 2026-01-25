@@ -12,8 +12,14 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.nio.file.attribute.FileTime;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 @Service
 public class FileStorageService {
@@ -114,6 +120,74 @@ public class FileStorageService {
 			return Files.exists(filePath) && Files.isRegularFile(filePath);
 		} catch (Exception ex) {
 			return false;
+		}
+	}
+
+	public List<ImageFileInfo> listAllFiles() {
+		List<ImageFileInfo> fileInfos = new ArrayList<>();
+		try {
+			if (!Files.exists(this.fileStorageLocation) || !Files.isDirectory(this.fileStorageLocation)) {
+				return fileInfos;
+			}
+
+			try (Stream<Path> paths = Files.list(this.fileStorageLocation)) {
+				paths.filter(Files::isRegularFile)
+						.forEach(filePath -> {
+							try {
+								String fileName = filePath.getFileName().toString();
+								long size = Files.size(filePath);
+								FileTime fileTime = Files.getLastModifiedTime(filePath);
+								LocalDateTime lastModified = LocalDateTime.ofInstant(
+										fileTime.toInstant(),
+										ZoneId.systemDefault()
+								);
+
+								fileInfos.add(new ImageFileInfo(fileName, size, lastModified));
+							} catch (IOException ex) {
+								// Ignorar arquivos que não podem ser lidos
+							}
+						});
+			}
+		} catch (IOException ex) {
+			throw new RuntimeException("Erro ao listar arquivos", ex);
+		}
+
+		fileInfos.sort((a, b) -> b.getLastModified().compareTo(a.getLastModified()));
+
+		return fileInfos;
+	}
+
+	public static class ImageFileInfo {
+		private final String fileName;
+		private final long size;
+		private final LocalDateTime lastModified;
+
+		public ImageFileInfo(String fileName, long size, LocalDateTime lastModified) {
+			this.fileName = fileName;
+			this.size = size;
+			this.lastModified = lastModified;
+		}
+
+		public String getFileName() {
+			return fileName;
+		}
+
+		public long getSize() {
+			return size;
+		}
+
+		public LocalDateTime getLastModified() {
+			return lastModified;
+		}
+	}
+
+	public String formatFileSize(long bytes) {
+		if (bytes < 1024) {
+			return bytes + " B";
+		} else if (bytes < 1024 * 1024) {
+			return String.format("%.2f KB", bytes / 1024.0);
+		} else {
+			return String.format("%.2f MB", bytes / (1024.0 * 1024.0));
 		}
 	}
 }
