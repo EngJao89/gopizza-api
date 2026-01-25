@@ -19,7 +19,13 @@ API REST para o sistema de gestão de pizzaria GoPizza, desenvolvida com Spring 
 
 ## 🎯 Sobre o Projeto
 
-A GoPizza API é uma aplicação REST desenvolvida para gerenciar operações de uma pizzaria, incluindo cadastro e gerenciamento de usuários. A API utiliza Spring Boot 4.0.1 com Java 21 e PostgreSQL como banco de dados.
+A GoPizza API é uma aplicação REST desenvolvida para gerenciar operações de uma pizzaria, incluindo:
+- Cadastro e gerenciamento de usuários
+- Cadastro de sabores de pizza com imagens
+- Upload e gerenciamento de imagens
+- Autenticação JWT
+
+A API utiliza Spring Boot 4.0.1 com Java 21 e PostgreSQL como banco de dados.
 
 ## 🛠 Tecnologias
 
@@ -27,6 +33,8 @@ A GoPizza API é uma aplicação REST desenvolvida para gerenciar operações de
 - **Spring Boot 4.0.1** - Framework Java
 - **Spring Data JPA** - Persistência de dados
 - **Spring Web** - Construção de APIs REST
+- **Spring Security** - Autenticação e autorização
+- **JWT (JSON Web Tokens)** - Autenticação stateless
 - **SpringDoc OpenAPI 2.7.0** - Documentação da API (Swagger)
 - **Flyway** - Controle de versão do banco de dados
 - **PostgreSQL 16** - Banco de dados relacional
@@ -116,33 +124,61 @@ gopizza/
 ├── src/
 │   ├── main/
 │   │   ├── java/com/gopizza/
-│   │   │   ├── config/          # Configurações da aplicação
-│   │   │   ├── controller/       # Controllers REST
+│   │   │   ├── config/                    # Configurações da aplicação
+│   │   │   │   └── SecurityConfig.java
+│   │   │   ├── controller/                # Controllers REST
+│   │   │   │   ├── AuthController.java
+│   │   │   │   ├── HealthController.java
 │   │   │   │   ├── HomeController.java
+│   │   │   │   ├── ImageController.java
+│   │   │   │   ├── PizzaFlavorController.java
 │   │   │   │   └── UserController.java
-│   │   │   ├── dto/              # Data Transfer Objects
+│   │   │   ├── dto/                        # Data Transfer Objects
+│   │   │   │   ├── AuthResponseDTO.java
+│   │   │   │   ├── CreatePizzaFlavorDTO.java
 │   │   │   │   ├── CreateUserDTO.java
+│   │   │   │   ├── ImageInfoDTO.java
+│   │   │   │   ├── LoginRequestDTO.java
+│   │   │   │   ├── PizzaFlavorResponseDTO.java
+│   │   │   │   ├── UpdatePizzaFlavorDTO.java
+│   │   │   │   ├── UpdateUserDTO.java
 │   │   │   │   └── UserResponseDTO.java
-│   │   │   ├── exception/        # Tratamento de exceções
+│   │   │   ├── exception/                  # Tratamento de exceções
 │   │   │   │   └── GlobalExceptionHandler.java
-│   │   │   ├── model/            # Entidades JPA
+│   │   │   ├── model/                      # Entidades JPA
+│   │   │   │   ├── PizzaFlavor.java
 │   │   │   │   └── User.java
-│   │   │   ├── repository/       # Repositórios Spring Data JPA
+│   │   │   ├── repository/                 # Repositórios Spring Data JPA
+│   │   │   │   ├── PizzaFlavorRepository.java
 │   │   │   │   └── UserRepository.java
-│   │   │   ├── service/          # Lógica de negócio
+│   │   │   ├── security/                   # Componentes de segurança
+│   │   │   │   ├── JwtAuthenticationEntryPoint.java
+│   │   │   │   ├── JwtAuthenticationFilter.java
+│   │   │   │   ├── JwtTokenProvider.java
+│   │   │   │   └── SecurityExceptionHandler.java
+│   │   │   ├── service/                     # Lógica de negócio
+│   │   │   │   ├── AuthService.java
+│   │   │   │   ├── FileStorageService.java
+│   │   │   │   ├── PizzaFlavorService.java
 │   │   │   │   └── UserService.java
 │   │   │   └── GopizzaApplication.java
 │   │   └── resources/
-│   │       ├── application.yaml           # Configuração local
-│   │       ├── application-docker.yaml    # Configuração Docker
-│   │       └── db/migration/              # Scripts Flyway
-│   │           └── V1__create_users_table.sql
-│   └── test/                      # Testes
-├── docker-compose.yml             # Configuração Docker Compose
-├── Dockerfile                     # Imagem Docker da aplicação
-├── pom.xml                        # Dependências Maven
-├── .example.env                   # Exemplo de variáveis de ambiente
-└── README.md                      # Este arquivo
+│   │       ├── application.yaml            # Configuração local
+│   │       ├── application-docker.yaml     # Configuração Docker
+│   │       └── db/migration/               # Scripts Flyway
+│   │           ├── V1__create_users_table.sql
+│   │           ├── V2__add_birthday_and_cpf_to_users.sql
+│   │           ├── V3__change_user_id_to_uuid.sql
+│   │           ├── V4__create_pizza_flavors_table.sql
+│   │           └── V5__add_image_url_to_pizza_flavors.sql
+│   └── test/                               # Testes
+├── uploads/                                 # Diretório de imagens (volume Docker)
+│   └── images/
+├── docker-compose.yml                       # Configuração Docker Compose
+├── Dockerfile                               # Imagem Docker da aplicação
+├── pom.xml                                  # Dependências Maven
+├── .example.env                             # Exemplo de variáveis de ambiente
+└── README.md                                # Este arquivo
 ```
 
 ## 🔌 Endpoints da API
@@ -150,40 +186,55 @@ gopizza/
 ### Informações da API
 
 - **GET** `/api` - Retorna informações sobre a API e lista de endpoints disponíveis
+- **GET** `/actuator/health` - Health check da aplicação
+- **GET** `/health` - Health check simples
+
+### Autenticação
+
+Todos os endpoints de autenticação estão sob o prefixo `/api/auth`:
+
+| Método    | Endpoint          | Descrição                        |
+| :-------- | :---------------- | :------------------------------- |
+| **POST**  | `/api/auth/login` | Autenticar usuário e obter JWT   |
 
 ### Usuários
 
-Todos os endpoints de usuários estão sob o prefixo `/api/users`:
+Todos os endpoints de usuários estão sob o prefixo `/api/users` (sem autenticação):
 
-| Método    | Endpoint                    | Descrição                  |
-| :-------- | :-------------------------- | :------------------------- |
-| **POST**  | `/api/users`                | Criar novo usuário         |
-| **GET**   | `/api/users`                | Listar todos os usuários   |
-| **GET**   | `/api/users/{id}`           | Buscar usuário por ID      |
-| **GET**   | `/api/users/email/{email}`  | Buscar usuário por email   |
-| **PUT**   | `/api/users/{id}`           | Atualizar usuário          |
-| **DELETE**| `/api/users/{id}`           | Deletar usuário            |
+| Método    | Endpoint                    | Descrição                        |
+| :-------- | :-------------------------- | :------------------------------- |
+| **POST**  | `/api/users`                | Criar novo usuário               |
+| **GET**   | `/api/users`                | Listar todos os usuários         |
+| **GET**   | `/api/users/{id}`           | Buscar usuário por ID (UUID)     |
+| **GET**   | `/api/users/email/{email}`  | Buscar usuário por email         |
+| **PUT**   | `/api/users/{id}`           | Atualizar usuário completo       |
+| **PATCH** | `/api/users/{id}`           | Atualizar usuário parcialmente   |
+| **DELETE**| `/api/users/{id}`           | Deletar usuário                  |
 
-### Exemplo de Requisição
+### Sabores de Pizza
 
-**Criar usuário:**
+Todos os endpoints de sabores de pizza estão sob o prefixo `/api/pizza-flavors` (sem autenticação):
 
-```bash
-curl -X POST http://localhost:8080/api/users \
-  -H "Content-Type: application/json" \
-  -d '{
-    "name": "João Silva",
-    "email": "joao@example.com",
-    "phone": "11999999999",
-    "password": "senha123"
-  }'
-```
+| Método    | Endpoint                              | Descrição                        |
+| :-------- | :------------------------------------ | :------------------------------- |
+| **POST**  | `/api/pizza-flavors`                  | Criar novo sabor de pizza        |
+| **GET**   | `/api/pizza-flavors`                  | Listar todos os sabores          |
+| **GET**   | `/api/pizza-flavors/{id}`             | Buscar sabor por ID (UUID)       |
+| **GET**   | `/api/pizza-flavors/name/{name}`      | Buscar sabor por nome            |
+| **PUT**   | `/api/pizza-flavors/{id}`             | Atualizar sabor completo         |
+| **PATCH** | `/api/pizza-flavors/{id}`             | Atualizar sabor parcialmente     |
+| **DELETE**| `/api/pizza-flavors/{id}`             | Deletar sabor                    |
 
-**Listar usuários:**
+### Imagens
 
-```bash
-curl http://localhost:8080/api/users
-```
+Todos os endpoints de imagens estão sob o prefixo `/api/images` (sem autenticação):
+
+| Método    | Endpoint                    | Descrição                        |
+| :-------- | :-------------------------- | :------------------------------- |
+| **GET**   | `/api/images`               | Listar todas as imagens          |
+| **POST**  | `/api/images/upload`        | Upload de imagem                 |
+| **GET**   | `/api/images/{fileName}`    | Visualizar/download de imagem    |
+| **DELETE**| `/api/images/{fileName}`    | Deletar imagem                   |
 
 ## 🔐 Variáveis de Ambiente
 
@@ -202,7 +253,11 @@ O projeto utiliza **Flyway** para controle de versão do banco de dados. As migr
 
 ### Migrations Existentes
 
-- **V1__create_users_table.sql** - Cria a tabela `users` com os campos necessários
+- **V1__create_users_table.sql** - Cria a tabela `users` com os campos básicos
+- **V2__add_birthday_and_cpf_to_users.sql** - Adiciona campos `birthday` e `cpf` à tabela `users`
+- **V3__change_user_id_to_uuid.sql** - Converte o ID de `BIGSERIAL` para `UUID`
+- **V4__create_pizza_flavors_table.sql** - Cria a tabela `pizza_flavors` com campos JSON para opcionais e tamanhos/preços
+- **V5__add_image_url_to_pizza_flavors.sql** - Adiciona campo `image_url` à tabela `pizza_flavors`
 
 ### Criando uma Nova Migration
 
@@ -213,8 +268,8 @@ O projeto utiliza **Flyway** para controle de versão do banco de dados. As migr
 **Exemplo:**
 
 ```sql
--- V2__add_user_role_column.sql
-ALTER TABLE users ADD COLUMN role VARCHAR(50) NOT NULL DEFAULT 'USER';
+-- V6__add_new_column.sql
+ALTER TABLE table_name ADD COLUMN new_column VARCHAR(100);
 ```
 
 ## 📚 Documentação da API
@@ -333,9 +388,13 @@ docker compose logs app
 ## 📝 Notas Adicionais
 
 - A aplicação utiliza o perfil `docker` quando executada via Docker Compose
-- O Hibernate está configurado com `ddl-auto: validate` no Docker para garantir que apenas migrations sejam aplicadas
+- O Hibernate está configurado com `ddl-auto: none` no Docker para garantir que apenas migrations sejam aplicadas
 - O SpringDoc está configurado para documentar apenas endpoints sob `/api/**`
 - A aplicação roda na porta **8080** por padrão
+- As imagens são armazenadas localmente no diretório `uploads/images/` (volume Docker)
+- Rotas de usuários, sabores de pizza e imagens são públicas (não requerem autenticação)
+- Autenticação JWT é necessária apenas para rotas protegidas
+- IDs são gerados como UUID para melhor segurança e distribuição
 
 ## 📄 Licença
 
