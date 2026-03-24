@@ -2,13 +2,17 @@ package com.gopizza.controller;
 
 import com.gopizza.dto.AuthResponseDTO;
 import com.gopizza.dto.LoginRequestDTO;
+import com.gopizza.dto.UserResponseDTO;
 import com.gopizza.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -25,10 +29,21 @@ public class AuthController {
 	@PostMapping("/login")
 	@Operation(
 		summary = "Login",
-		description = "Autentica um usuário e retorna um token JWT"
+		description = "Autentica um usuário e retorna apenas o token JWT"
 	)
 	public ResponseEntity<AuthResponseDTO> login(@Valid @RequestBody LoginRequestDTO loginRequest) {
 		AuthResponseDTO authResponse = authService.login(loginRequest);
 		return ResponseEntity.ok(authResponse);
+	}
+
+	@GetMapping("/me")
+	@Operation(
+		summary = "Usuário autenticado",
+		description = "Retorna os dados do usuário autenticado com base no token JWT enviado no header Authorization"
+	)
+	public ResponseEntity<UserResponseDTO> me(Authentication authentication) {
+		UUID userId = (UUID) authentication.getPrincipal();
+		UserResponseDTO userResponse = authService.getLoggedUser(userId);
+		return ResponseEntity.ok(userResponse);
 	}
 }

@@ -11,6 +11,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.UUID;
+
 @Service
 public class AuthService {
 
@@ -56,8 +58,11 @@ public class AuthService {
 		}
 
 		String token = jwtTokenProvider.generateToken(user.getId(), user.getEmail());
-		UserResponseDTO userResponse = userService.convertToDTO(user);
+		return new AuthResponseDTO(token);
+	}
 
-		return new AuthResponseDTO(token, userResponse);
+	@Transactional(readOnly = true)
+	public UserResponseDTO getLoggedUser(UUID userId) {
+		return userService.getUserById(userId);
 	}
 }
