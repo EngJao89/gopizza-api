@@ -9,7 +9,7 @@ public class AuthResponseDTO {
 	private String token;
 
 	@Schema(description = "Se o usuário autenticado é administrador (espelha o perfil no banco)", example = "false")
-	private boolean admin;
+	private Boolean admin;
 
 	public AuthResponseDTO() {
 	}
@@ -27,11 +27,11 @@ public class AuthResponseDTO {
 		this.token = token;
 	}
 
-	public boolean isAdmin() {
+	public Boolean getAdmin() {
 		return admin;
 	}
 
-	public void setAdmin(boolean admin) {
+	public void setAdmin(Boolean admin) {
 		this.admin = admin;
 	}
 }
