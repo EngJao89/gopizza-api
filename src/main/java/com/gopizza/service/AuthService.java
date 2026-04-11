@@ -57,8 +57,8 @@ public class AuthService {
 			throw new IllegalArgumentException("Email ou senha inválidos");
 		}
 
-		String token = jwtTokenProvider.generateToken(user.getId(), user.getEmail());
-		return new AuthResponseDTO(token);
+		String token = jwtTokenProvider.generateToken(user.getId(), user.getEmail(), user.isAdmin());
+		return new AuthResponseDTO(token, user.isAdmin());
 	}
 
 	@Transactional(readOnly = true)

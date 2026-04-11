@@ -33,6 +33,9 @@ public class User {
 	@Column(name = "cpf", length = 11)
 	private String cpf;
 
+	@Column(name = "admin", nullable = false)
+	private boolean admin;
+
 	@Column(name = "created_at", nullable = false, updatable = false)
 	private LocalDateTime createdAt;
 
@@ -142,6 +145,14 @@ public class User {
 		this.cpf = cpf;
 	}
 
+	public boolean isAdmin() {
+		return admin;
+	}
+
+	public void setAdmin(boolean admin) {
+		this.admin = admin;
+	}
+
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
@@ -164,6 +175,7 @@ public class User {
 				", phone='" + phone + '\'' +
 				", birthday=" + birthday +
 				", cpf='" + cpf + '\'' +
+				", admin=" + admin +
 				", createdAt=" + createdAt +
 				", updatedAt=" + updatedAt +
 				'}';

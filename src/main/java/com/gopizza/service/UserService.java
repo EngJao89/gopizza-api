@@ -45,6 +45,7 @@ public class UserService {
 		user.setPassword(passwordEncoder.encode(createUserDTO.getPassword()));
 		user.setBirthday(createUserDTO.getBirthday());
 		user.setCpf(createUserDTO.getCpf());
+		user.setAdmin(Boolean.TRUE.equals(createUserDTO.getAdmin()));
 
 		User savedUser = userRepository.save(user);
 		return convertToDTO(savedUser);
@@ -95,6 +96,7 @@ public class UserService {
 		if (updateUserDTO.getPassword() != null && !updateUserDTO.getPassword().isEmpty()) {
 			user.setPassword(passwordEncoder.encode(updateUserDTO.getPassword()));
 		}
+		user.setAdmin(Boolean.TRUE.equals(updateUserDTO.getAdmin()));
 
 		User updatedUser = userRepository.save(user);
 		return convertToDTO(updatedUser);
@@ -140,6 +142,10 @@ public class UserService {
 			user.setCpf(newCpf);
 		}
 
+		if (updateUserDTO.getAdmin() != null) {
+			user.setAdmin(updateUserDTO.getAdmin());
+		}
+
 		User updatedUser = userRepository.save(user);
 		return convertToDTO(updatedUser);
 	}
@@ -160,6 +166,7 @@ public class UserService {
 				user.getPhone(),
 				user.getBirthday(),
 				user.getCpf(),
+				user.isAdmin(),
 				user.getCreatedAt(),
 				user.getUpdatedAt()
 		);

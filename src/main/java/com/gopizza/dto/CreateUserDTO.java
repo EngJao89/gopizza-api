@@ -40,6 +40,9 @@ public class CreateUserDTO {
 	@Pattern(regexp = "^\\d{11}$", message = "CPF deve conter exatamente 11 dígitos numéricos")
 	private String cpf;
 
+	@Schema(description = "Se true, o usuário é administrador (telas e permissões no app). Omitir ou false = cliente comum.", example = "false")
+	private Boolean admin;
+
 	public CreateUserDTO() {
 	}
 
@@ -106,5 +109,13 @@ public class CreateUserDTO {
 
 	public void setCpf(String cpf) {
 		this.cpf = cpf;
+	}
+
+	public Boolean getAdmin() {
+		return admin;
+	}
+
+	public void setAdmin(Boolean admin) {
+		this.admin = admin;
 	}
 }

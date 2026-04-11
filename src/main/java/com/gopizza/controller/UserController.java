@@ -30,7 +30,7 @@ public class UserController {
 	@PostMapping
 	@Operation(
 		summary = "Criar novo usuário",
-		description = "Cria um novo usuário no sistema. Os campos obrigatórios são: email, name, phone e password. Os campos birthday e cpf são opcionais."
+		description = "Cria um novo usuário no sistema. Os campos obrigatórios são: email, name, phone e password. Os campos birthday, cpf e admin são opcionais; admin=true define administrador para web/mobile."
 	)
 	public ResponseEntity<UserResponseDTO> createUser(@Valid @RequestBody CreateUserDTO createUserDTO) {
 		UserResponseDTO userResponse = userService.createUser(createUserDTO);

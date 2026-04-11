@@ -41,17 +41,23 @@ public class JwtTokenProvider {
 		return Keys.hmacShaKeyFor(keyBytes);
 	}
 
-	public String generateToken(UUID userId, String email) {
+	public String generateToken(UUID userId, String email, boolean admin) {
 		Date now = new Date();
 		Date expiryDate = new Date(now.getTime() + jwtExpiration);
 
 		return Jwts.builder()
 				.subject(userId.toString())
 				.claim("email", email)
+				.claim("admin", admin)
 				.issuedAt(now)
 				.expiration(expiryDate)
 				.signWith(getSigningKey())
 				.compact();
+	}
+
+	public boolean isAdminFromToken(String token) {
+		Claims claims = getAllClaimsFromToken(token);
+		return Boolean.TRUE.equals(claims.get("admin", Boolean.class));
 	}
 
 	public UUID getUserIdFromToken(String token) {
@@ -81,7 +87,7 @@ public class JwtTokenProvider {
 				.getPayload();
 	}
 
-	public Boolean validateToken(String token) {
+	public boolean validateToken(String token) {
 		try {
 			Jwts.parser()
 					.verifyWith(getSigningKey())
