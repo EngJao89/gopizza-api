@@ -35,6 +35,9 @@ public class UpdateUserDTO {
 	@Pattern(regexp = "^\\d{11}$", message = "CPF deve conter exatamente 11 dígitos numéricos")
 	private String cpf;
 
+	@Schema(description = "Se informado, atualiza se o usuário é administrador", example = "true")
+	private Boolean admin;
+
 	public UpdateUserDTO() {
 	}
 
@@ -85,5 +88,13 @@ public class UpdateUserDTO {
 
 	public void setCpf(String cpf) {
 		this.cpf = cpf;
+	}
+
+	public Boolean getAdmin() {
+		return admin;
+	}
+
+	public void setAdmin(Boolean admin) {
+		this.admin = admin;
 	}
 }

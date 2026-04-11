@@ -26,6 +26,9 @@ public class UserResponseDTO {
 	@Schema(description = "CPF do usuário (11 dígitos)", example = "12345678901")
 	private String cpf;
 
+	@Schema(description = "Indica se o usuário é administrador", example = "false")
+	private boolean admin;
+
 	@Schema(description = "Data e hora de criação do registro", example = "2024-01-15T10:30:00")
 	private LocalDateTime createdAt;
 
@@ -45,13 +48,14 @@ public class UserResponseDTO {
 		this.updatedAt = updatedAt;
 	}
 
-	public UserResponseDTO(UUID id, String email, String name, String phone, LocalDate birthday, String cpf, LocalDateTime createdAt, LocalDateTime updatedAt) {
+	public UserResponseDTO(UUID id, String email, String name, String phone, LocalDate birthday, String cpf, boolean admin, LocalDateTime createdAt, LocalDateTime updatedAt) {
 		this.id = id;
 		this.email = email;
 		this.name = name;
 		this.phone = phone;
 		this.birthday = birthday;
 		this.cpf = cpf;
+		this.admin = admin;
 		this.createdAt = createdAt;
 		this.updatedAt = updatedAt;
 	}
@@ -119,5 +123,13 @@ public class UserResponseDTO {
 
 	public void setCpf(String cpf) {
 		this.cpf = cpf;
+	}
+
+	public boolean isAdmin() {
+		return admin;
+	}
+
+	public void setAdmin(boolean admin) {
+		this.admin = admin;
 	}
 }
