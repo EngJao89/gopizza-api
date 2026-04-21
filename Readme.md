@@ -283,6 +283,7 @@ O projeto utiliza **Flyway** para controle de versão do banco de dados. As migr
 - **V7__create_products_table.sql** - Cria a tabela `products`
 - **V8__create_orders_tables.sql** - Cria as tabelas `orders` e `order_items`
 - **V9__create_addresses_table.sql** - Cria a tabela `addresses` vinculada a `users`
+- **V10__add_number_reference_to_addresses.sql** - Adiciona campo `number_reference` na tabela `addresses`
 
 ### Criando uma Nova Migration
 

@@ -2,15 +2,35 @@ package com.gopizza.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 @Schema(description = "DTO para criação de endereço de entrega")
 public class CreateAddressDTO {
 
-	@Schema(description = "Rua", example = "Rua das Flores, 123")
+	@Schema(
+			description = "Nome da rua",
+			example = "Rua das Flores"
+	)
 	@NotBlank(message = "Rua é obrigatória")
 	@Size(max = 180, message = "Rua deve ter no máximo 180 caracteres")
+	@Pattern(
+			regexp = "^[\\p{L}0-9 .,-]+$",
+			message = "Rua deve conter apenas letras, números, espaços, ponto, vírgula e hífen"
+	)
 	private String rua;
+
+	@Schema(
+			description = "Numero/identificador do endereco (aceita numero, letras e formato quadra/lote)",
+			example = "QD.10 LT.30"
+	)
+	@NotBlank(message = "Numero é obrigatório")
+	@Size(max = 40, message = "Numero deve ter no máximo 40 caracteres")
+	@Pattern(
+			regexp = "^[A-Za-z0-9 ./-]+$",
+			message = "Numero deve conter apenas letras, números, espaços, ponto, barra e hífen"
+	)
+	private String numero;
 
 	@Schema(description = "Bairro", example = "Centro")
 	@NotBlank(message = "Bairro é obrigatório")
@@ -47,6 +67,14 @@ public class CreateAddressDTO {
 
 	public void setRua(String rua) {
 		this.rua = rua;
+	}
+
+	public String getNumero() {
+		return numero;
+	}
+
+	public void setNumero(String numero) {
+		this.numero = numero;
 	}
 
 	public String getBairro() {
