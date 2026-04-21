@@ -22,6 +22,7 @@ API REST para o sistema de gestão de pizzaria GoPizza, desenvolvida com Spring 
 A GoPizza API é uma aplicação REST desenvolvida para gerenciar operações de uma pizzaria, incluindo:
 - Cadastro e gerenciamento de usuários
 - Cadastro de sabores de pizza com imagens
+- Cadastro de pedidos com itens e total
 - Upload e gerenciamento de imagens
 - Autenticação JWT
 
@@ -236,6 +237,16 @@ Todos os endpoints de imagens estão sob o prefixo `/api/images` (sem autentica�
 | **GET**   | `/api/images/{fileName}`    | Visualizar/download de imagem    |
 | **DELETE**| `/api/images/{fileName}`    | Deletar imagem                   |
 
+### Pedidos
+
+Todos os endpoints de pedidos estão sob o prefixo `/api/orders` (sem autenticação):
+
+| Método    | Endpoint            | Descrição                              |
+| :-------- | :------------------ | :------------------------------------- |
+| **POST**  | `/api/orders`       | Criar novo pedido com itens            |
+| **GET**   | `/api/orders`       | Listar todos os pedidos                |
+| **GET**   | `/api/orders/{id}`  | Buscar pedido por ID (UUID)            |
+
 ## 🔐 Variáveis de Ambiente
 
 ### Variáveis da Aplicação (Docker)
@@ -258,6 +269,9 @@ O projeto utiliza **Flyway** para controle de versão do banco de dados. As migr
 - **V3__change_user_id_to_uuid.sql** - Converte o ID de `BIGSERIAL` para `UUID`
 - **V4__create_pizza_flavors_table.sql** - Cria a tabela `pizza_flavors` com campos JSON para opcionais e tamanhos/preços
 - **V5__add_image_url_to_pizza_flavors.sql** - Adiciona campo `image_url` à tabela `pizza_flavors`
+- **V6__add_admin_flag_to_users.sql** - Adiciona flag `admin` à tabela `users`
+- **V7__create_products_table.sql** - Cria a tabela `products`
+- **V8__create_orders_tables.sql** - Cria as tabelas `orders` e `order_items`
 
 ### Criando uma Nova Migration
 
