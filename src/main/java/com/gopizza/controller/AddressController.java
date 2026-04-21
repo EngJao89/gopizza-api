@@ -30,7 +30,10 @@ public class AddressController {
 	}
 
 	@PostMapping
-	@Operation(summary = "Criar endereco para usuario")
+	@Operation(
+			summary = "Criar endereco para usuario",
+			description = "Informe rua e numero em campos separados. O campo numero aceita formatos como QD.10 LT.30."
+	)
 	public ResponseEntity<AddressResponseDTO> createAddress(
 			@PathVariable UUID userId,
 			@Valid @RequestBody CreateAddressDTO dto) {

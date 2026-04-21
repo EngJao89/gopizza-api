@@ -31,6 +31,9 @@ public class Address {
 	@Column(name = "street", nullable = false, length = 180)
 	private String street;
 
+	@Column(name = "number_reference", nullable = false, length = 40)
+	private String numberReference;
+
 	@Column(name = "neighborhood", nullable = false, length = 120)
 	private String neighborhood;
 
@@ -88,6 +91,14 @@ public class Address {
 
 	public void setStreet(String street) {
 		this.street = street;
+	}
+
+	public String getNumberReference() {
+		return numberReference;
+	}
+
+	public void setNumberReference(String numberReference) {
+		this.numberReference = numberReference;
 	}
 
 	public String getNeighborhood() {

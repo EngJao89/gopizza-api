@@ -8,9 +8,20 @@ import java.util.UUID;
 @Schema(description = "Resposta com dados de endereco de entrega")
 public class AddressResponseDTO {
 
+	@Schema(description = "ID do endereco", example = "550e8400-e29b-41d4-a716-446655440000")
 	private UUID id;
+	@Schema(description = "ID do usuario dono do endereco", example = "550e8400-e29b-41d4-a716-446655440001")
 	private UUID userId;
+	@Schema(
+			description = "Nome da rua",
+			example = "Rua das Flores"
+	)
 	private String rua;
+	@Schema(
+			description = "Numero/identificador do endereco",
+			example = "QD.10 LT.30"
+	)
+	private String numero;
 	private String bairro;
 	private String cep;
 	private String cidade;
@@ -21,21 +32,7 @@ public class AddressResponseDTO {
 	private LocalDateTime updatedAt;
 
 	public AddressResponseDTO() {
-	}
-
-	public AddressResponseDTO(UUID id, UUID userId, String rua, String bairro, String cep, String cidade, String estado,
-			String pais, String complemento, LocalDateTime createdAt, LocalDateTime updatedAt) {
-		this.id = id;
-		this.userId = userId;
-		this.rua = rua;
-		this.bairro = bairro;
-		this.cep = cep;
-		this.cidade = cidade;
-		this.estado = estado;
-		this.pais = pais;
-		this.complemento = complemento;
-		this.createdAt = createdAt;
-		this.updatedAt = updatedAt;
+		// Default constructor for JSON serialization/deserialization.
 	}
 
 	public UUID getId() {
@@ -60,6 +57,14 @@ public class AddressResponseDTO {
 
 	public void setRua(String rua) {
 		this.rua = rua;
+	}
+
+	public String getNumero() {
+		return numero;
+	}
+
+	public void setNumero(String numero) {
+		this.numero = numero;
 	}
 
 	public String getBairro() {

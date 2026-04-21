@@ -31,6 +31,7 @@ public class AddressService {
 		Address address = new Address();
 		address.setUser(user);
 		address.setStreet(dto.getRua().trim());
+		address.setNumberReference(dto.getNumero().trim());
 		address.setNeighborhood(dto.getBairro().trim());
 		address.setZipCode(dto.getCep().trim());
 		address.setCity(dto.getCidade().trim());
@@ -53,18 +54,19 @@ public class AddressService {
 	}
 
 	private AddressResponseDTO toResponse(Address address) {
-		return new AddressResponseDTO(
-				address.getId(),
-				address.getUser().getId(),
-				address.getStreet(),
-				address.getNeighborhood(),
-				address.getZipCode(),
-				address.getCity(),
-				address.getState(),
-				address.getCountry(),
-				address.getComplement(),
-				address.getCreatedAt(),
-				address.getUpdatedAt()
-		);
+		AddressResponseDTO dto = new AddressResponseDTO();
+		dto.setId(address.getId());
+		dto.setUserId(address.getUser().getId());
+		dto.setRua(address.getStreet());
+		dto.setNumero(address.getNumberReference());
+		dto.setBairro(address.getNeighborhood());
+		dto.setCep(address.getZipCode());
+		dto.setCidade(address.getCity());
+		dto.setEstado(address.getState());
+		dto.setPais(address.getCountry());
+		dto.setComplemento(address.getComplement());
+		dto.setCreatedAt(address.getCreatedAt());
+		dto.setUpdatedAt(address.getUpdatedAt());
+		return dto;
 	}
 }
