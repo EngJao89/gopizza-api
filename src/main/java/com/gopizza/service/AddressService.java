@@ -72,6 +72,12 @@ public class AddressService {
 				.toList();
 	}
 
+	@Transactional
+	public void deleteAddress(UUID userId, UUID addressId) {
+		Address address = getAddressByIdAndUserId(userId, addressId);
+		addressRepository.delete(address);
+	}
+
 	private Address getAddressByIdAndUserId(UUID userId, UUID addressId) {
 		if (!userRepository.existsById(userId)) {
 			throw new IllegalArgumentException("Usuario nao encontrado com ID: " + userId);

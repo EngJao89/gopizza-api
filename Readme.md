@@ -258,6 +258,7 @@ Todos os endpoints de enderecos estao sob o prefixo `/api/users/{userId}/address
 | **GET**   | `/api/users/{userId}/addresses`   | Listar enderecos de um usuario         |
 | **PUT**   | `/api/users/{userId}/addresses/{addressId}`   | Atualizar endereco completo de um usuario |
 | **PATCH** | `/api/users/{userId}/addresses/{addressId}`   | Atualizar endereco parcialmente de um usuario |
+| **DELETE** | `/api/users/{userId}/addresses/{addressId}`   | Deletar endereco de um usuario |
 
 ## 🔐 Variáveis de Ambiente
 

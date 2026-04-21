@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -65,5 +66,14 @@ public class AddressController {
 			@PathVariable UUID addressId,
 			@Valid @RequestBody UpdateAddressDTO dto) {
 		return ResponseEntity.ok(addressService.updateAddressPartial(userId, addressId, dto));
+	}
+
+	@DeleteMapping("/{addressId}")
+	@Operation(summary = "Deletar endereco de um usuario")
+	public ResponseEntity<Void> deleteAddress(
+			@PathVariable UUID userId,
+			@PathVariable UUID addressId) {
+		addressService.deleteAddress(userId, addressId);
+		return ResponseEntity.noContent().build();
 	}
 }
