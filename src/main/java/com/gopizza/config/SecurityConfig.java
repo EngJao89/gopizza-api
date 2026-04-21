@@ -41,7 +41,7 @@ public class SecurityConfig {
 	}
 
 	@Bean
-	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+	public SecurityFilterChain securityFilterChain(HttpSecurity http) {
 		http
 			.csrf(csrf -> csrf.disable())
 			.cors(cors -> cors.configurationSource(corsConfigurationSource()))
@@ -51,6 +51,7 @@ public class SecurityConfig {
 				.requestMatchers("/api/users/**").permitAll()
 				.requestMatchers("/api/pizza-flavors/**").permitAll()
 				.requestMatchers("/api/products/**").permitAll()
+				.requestMatchers("/api/orders/**").permitAll()
 				.requestMatchers("/api/images/**").permitAll()
 				.requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/swagger-ui.html/**", "/swagger-ui/index.html").permitAll()
 				.requestMatchers("/api-docs/**", "/v3/api-docs/**", "/v3/api-docs.yaml", "/v3/api-docs.json").permitAll()
@@ -75,7 +76,7 @@ public class SecurityConfig {
 	}
 
 	@Bean
-	public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+	public AuthenticationManager authenticationManager(AuthenticationConfiguration config) {
 		return config.getAuthenticationManager();
 	}
 
