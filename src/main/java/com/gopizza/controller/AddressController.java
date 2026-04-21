@@ -2,6 +2,7 @@ package com.gopizza.controller;
 
 import com.gopizza.dto.AddressResponseDTO;
 import com.gopizza.dto.CreateAddressDTO;
+import com.gopizza.dto.UpdateAddressDTO;
 import com.gopizza.service.AddressService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -10,7 +11,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -44,5 +47,23 @@ public class AddressController {
 	@Operation(summary = "Listar enderecos de um usuario")
 	public ResponseEntity<List<AddressResponseDTO>> getAddressesByUserId(@PathVariable UUID userId) {
 		return ResponseEntity.ok(addressService.getAddressesByUserId(userId));
+	}
+
+	@PutMapping("/{addressId}")
+	@Operation(summary = "Atualizar endereco completo de um usuario")
+	public ResponseEntity<AddressResponseDTO> updateAddress(
+			@PathVariable UUID userId,
+			@PathVariable UUID addressId,
+			@Valid @RequestBody CreateAddressDTO dto) {
+		return ResponseEntity.ok(addressService.updateAddress(userId, addressId, dto));
+	}
+
+	@PatchMapping("/{addressId}")
+	@Operation(summary = "Atualizar endereco parcialmente de um usuario")
+	public ResponseEntity<AddressResponseDTO> updateAddressPartial(
+			@PathVariable UUID userId,
+			@PathVariable UUID addressId,
+			@Valid @RequestBody UpdateAddressDTO dto) {
+		return ResponseEntity.ok(addressService.updateAddressPartial(userId, addressId, dto));
 	}
 }
