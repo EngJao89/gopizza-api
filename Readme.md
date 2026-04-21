@@ -23,6 +23,7 @@ A GoPizza API é uma aplicação REST desenvolvida para gerenciar operações de
 - Cadastro e gerenciamento de usuários
 - Cadastro de sabores de pizza com imagens
 - Cadastro de pedidos com itens e total
+- Cadastro de enderecos de entrega por usuario
 - Upload e gerenciamento de imagens
 - Autenticação JWT
 
@@ -247,6 +248,15 @@ Todos os endpoints de pedidos estão sob o prefixo `/api/orders` (sem autentica�
 | **GET**   | `/api/orders`       | Listar todos os pedidos                |
 | **GET**   | `/api/orders/{id}`  | Buscar pedido por ID (UUID)            |
 
+### Enderecos de Entrega
+
+Todos os endpoints de enderecos estao sob o prefixo `/api/users/{userId}/addresses` (sem autenticacao):
+
+| Método    | Endpoint                          | Descrição                              |
+| :-------- | :-------------------------------- | :------------------------------------- |
+| **POST**  | `/api/users/{userId}/addresses`   | Cadastrar novo endereco para usuario   |
+| **GET**   | `/api/users/{userId}/addresses`   | Listar enderecos de um usuario         |
+
 ## 🔐 Variáveis de Ambiente
 
 ### Variáveis da Aplicação (Docker)
@@ -272,6 +282,7 @@ O projeto utiliza **Flyway** para controle de versão do banco de dados. As migr
 - **V6__add_admin_flag_to_users.sql** - Adiciona flag `admin` à tabela `users`
 - **V7__create_products_table.sql** - Cria a tabela `products`
 - **V8__create_orders_tables.sql** - Cria as tabelas `orders` e `order_items`
+- **V9__create_addresses_table.sql** - Cria a tabela `addresses` vinculada a `users`
 
 ### Criando uma Nova Migration
 
