@@ -59,6 +59,13 @@ public class OrderService {
 				.toList();
 	}
 
+	@Transactional
+	public void deleteOrder(UUID id) {
+		Order order = orderRepository.findById(id)
+				.orElseThrow(() -> new IllegalArgumentException("Pedido não encontrado com ID: " + id));
+		orderRepository.delete(order);
+	}
+
 	private OrderItem toOrderItemFromPizza(CreateOrderPizzaDTO dto) {
 		OrderItem item = new OrderItem();
 		item.setProductId(dto.getId());
