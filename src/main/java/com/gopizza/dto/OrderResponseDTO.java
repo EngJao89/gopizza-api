@@ -14,30 +14,13 @@ public class OrderResponseDTO {
 	private String customerName;
 	private String customerPhone;
 	private String deliveryAddress;
-	private String notes;
+	private String deliveryNumber;
+	private String deliveryNeighborhood;
 	private String status;
 	private BigDecimal totalAmount;
 	private List<OrderItemResponseDTO> items;
 	private LocalDateTime createdAt;
 	private LocalDateTime updatedAt;
-
-	public OrderResponseDTO() {
-	}
-
-	public OrderResponseDTO(UUID id, String customerName, String customerPhone, String deliveryAddress, String notes,
-			String status, BigDecimal totalAmount, List<OrderItemResponseDTO> items, LocalDateTime createdAt,
-			LocalDateTime updatedAt) {
-		this.id = id;
-		this.customerName = customerName;
-		this.customerPhone = customerPhone;
-		this.deliveryAddress = deliveryAddress;
-		this.notes = notes;
-		this.status = status;
-		this.totalAmount = totalAmount;
-		this.items = items;
-		this.createdAt = createdAt;
-		this.updatedAt = updatedAt;
-	}
 
 	public UUID getId() {
 		return id;
@@ -71,12 +54,20 @@ public class OrderResponseDTO {
 		this.deliveryAddress = deliveryAddress;
 	}
 
-	public String getNotes() {
-		return notes;
+	public String getDeliveryNumber() {
+		return deliveryNumber;
 	}
 
-	public void setNotes(String notes) {
-		this.notes = notes;
+	public void setDeliveryNumber(String deliveryNumber) {
+		this.deliveryNumber = deliveryNumber;
+	}
+
+	public String getDeliveryNeighborhood() {
+		return deliveryNeighborhood;
+	}
+
+	public void setDeliveryNeighborhood(String deliveryNeighborhood) {
+		this.deliveryNeighborhood = deliveryNeighborhood;
 	}
 
 	public String getStatus() {
