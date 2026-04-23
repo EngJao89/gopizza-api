@@ -1,8 +1,13 @@
 package com.gopizza.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+
+import java.math.BigDecimal;
 
 @Schema(description = "DTO para criação de produto")
 public class CreateProductDTO {
@@ -27,12 +32,19 @@ public class CreateProductDTO {
 	@Size(min = 1, message = "Conteúdo não pode ser vazio")
 	private String conteudo;
 
+	@Schema(description = "Valor do produto", example = "129.90")
+	@NotNull(message = "Valor é obrigatório")
+	@DecimalMin(value = "0.01", message = "Valor deve ser maior que zero")
+	@Digits(integer = 10, fraction = 2, message = "Valor deve ter no máximo 2 casas decimais")
+	private BigDecimal valor;
+
 	@Schema(description = "URL da imagem após upload em /api/images/upload", example = "/api/images/abc-uuid.jpg")
 	@NotBlank(message = "URL da imagem é obrigatória")
 	@Size(max = 500, message = "URL da imagem deve ter no máximo 500 caracteres")
 	private String imagemUrl;
 
 	public CreateProductDTO() {
+		// Default constructor for JSON serialization/deserialization.
 	}
 
 	public String getMarca() {
@@ -65,6 +77,14 @@ public class CreateProductDTO {
 
 	public void setConteudo(String conteudo) {
 		this.conteudo = conteudo;
+	}
+
+	public BigDecimal getValor() {
+		return valor;
+	}
+
+	public void setValor(BigDecimal valor) {
+		this.valor = valor;
 	}
 
 	public String getImagemUrl() {

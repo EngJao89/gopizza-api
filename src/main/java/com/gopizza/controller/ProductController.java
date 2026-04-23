@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
@@ -46,6 +47,7 @@ public class ProductController {
 			@RequestParam String titulo,
 			@RequestParam String descricao,
 			@RequestParam String conteudo,
+			@RequestParam BigDecimal valor,
 			@RequestParam("imagem") MultipartFile imagem) {
 		if (marca == null || marca.isBlank()) {
 			throw new IllegalArgumentException("Marca é obrigatória");
@@ -62,8 +64,11 @@ public class ProductController {
 		if (descricao.trim().length() < 5) {
 			throw new IllegalArgumentException("Descrição deve ter no mínimo 5 caracteres");
 		}
+		if (valor == null || valor.compareTo(BigDecimal.ZERO) <= 0) {
+			throw new IllegalArgumentException("Valor deve ser maior que zero");
+		}
 		return ResponseEntity.status(HttpStatus.CREATED)
-				.body(productService.createProductWithImage(marca, titulo, descricao, conteudo, imagem));
+				.body(productService.createProductWithImage(marca, titulo, descricao, conteudo, valor, imagem));
 	}
 
 	@GetMapping("/lookup")
