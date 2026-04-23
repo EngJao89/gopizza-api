@@ -2,6 +2,7 @@ package com.gopizza.model;
 
 import jakarta.persistence.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.UUID;
@@ -30,6 +31,9 @@ public class Product {
 	@Column(nullable = false, columnDefinition = "TEXT")
 	private String conteudo;
 
+	@Column(name = "valor", nullable = false, precision = 12, scale = 2)
+	private BigDecimal valor;
+
 	@Column(name = "image_url", nullable = false, length = 500)
 	private String imageUrl;
 
@@ -51,6 +55,7 @@ public class Product {
 	}
 
 	public Product() {
+		// Default constructor for JPA.
 	}
 
 	public UUID getId() {
@@ -91,6 +96,14 @@ public class Product {
 
 	public void setConteudo(String conteudo) {
 		this.conteudo = conteudo;
+	}
+
+	public BigDecimal getValor() {
+		return valor;
+	}
+
+	public void setValor(BigDecimal valor) {
+		this.valor = valor;
 	}
 
 	public String getImageUrl() {

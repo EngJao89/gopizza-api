@@ -9,12 +9,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 public class ProductService {
+	private static final String PRODUCT_NOT_FOUND_MESSAGE = "Produto não encontrado com ID: ";
 
 	private final ProductRepository productRepository;
 	private final FileStorageService fileStorageService;
@@ -37,6 +39,7 @@ public class ProductService {
 		product.setTitulo(titulo);
 		product.setDescricao(dto.getDescricao().trim());
 		product.setConteudo(dto.getConteudo().trim());
+		product.setValor(normalizePrice(dto.getValor()));
 		product.setImageUrl(dto.getImagemUrl().trim());
 
 		Product saved = productRepository.save(product);
@@ -44,7 +47,7 @@ public class ProductService {
 	}
 
 	@Transactional
-	public ProductResponseDTO createProductWithImage(String marca, String titulo, String descricao, String conteudo, MultipartFile imagem) {
+	public ProductResponseDTO createProductWithImage(String marca, String titulo, String descricao, String conteudo, BigDecimal valor, MultipartFile imagem) {
 		if (imagem == null || imagem.isEmpty()) {
 			throw new IllegalArgumentException("Imagem é obrigatória");
 		}
@@ -56,14 +59,29 @@ public class ProductService {
 		dto.setTitulo(titulo);
 		dto.setDescricao(descricao);
 		dto.setConteudo(conteudo);
+		dto.setValor(valor);
 		dto.setImagemUrl(imagemUrl);
-		return createProduct(dto);
+
+		String normalizedMarca = dto.getMarca().trim();
+		String normalizedTitulo = dto.getTitulo().trim();
+		if (productRepository.existsByMarcaAndTitulo(normalizedMarca, normalizedTitulo)) {
+			throw new IllegalArgumentException("Já existe produto com a mesma marca e título: " + normalizedMarca + " / " + normalizedTitulo);
+		}
+
+		Product product = new Product();
+		product.setMarca(normalizedMarca);
+		product.setTitulo(normalizedTitulo);
+		product.setDescricao(dto.getDescricao().trim());
+		product.setConteudo(dto.getConteudo().trim());
+		product.setValor(normalizePrice(dto.getValor()));
+		product.setImageUrl(dto.getImagemUrl().trim());
+		return toResponse(productRepository.save(product));
 	}
 
 	@Transactional(readOnly = true)
 	public ProductResponseDTO getProductById(UUID id) {
 		Product product = productRepository.findById(id)
-				.orElseThrow(() -> new IllegalArgumentException("Produto não encontrado com ID: " + id));
+				.orElseThrow(() -> new IllegalArgumentException(PRODUCT_NOT_FOUND_MESSAGE + id));
 		return toResponse(product);
 	}
 
@@ -79,13 +97,13 @@ public class ProductService {
 	public List<ProductResponseDTO> getAllProducts() {
 		return productRepository.findAll().stream()
 				.map(this::toResponse)
-				.collect(Collectors.toList());
+				.toList();
 	}
 
 	@Transactional
 	public ProductResponseDTO updateProduct(UUID id, CreateProductDTO dto) {
 		Product product = productRepository.findById(id)
-				.orElseThrow(() -> new IllegalArgumentException("Produto não encontrado com ID: " + id));
+				.orElseThrow(() -> new IllegalArgumentException(PRODUCT_NOT_FOUND_MESSAGE + id));
 
 		String marca = dto.getMarca().trim();
 		String titulo = dto.getTitulo().trim();
@@ -98,6 +116,7 @@ public class ProductService {
 		product.setTitulo(titulo);
 		product.setDescricao(dto.getDescricao().trim());
 		product.setConteudo(dto.getConteudo().trim());
+		product.setValor(normalizePrice(dto.getValor()));
 		product.setImageUrl(dto.getImagemUrl().trim());
 
 		return toResponse(productRepository.save(product));
@@ -106,35 +125,32 @@ public class ProductService {
 	@Transactional
 	public ProductResponseDTO updateProductPartial(UUID id, UpdateProductDTO dto) {
 		Product product = productRepository.findById(id)
-				.orElseThrow(() -> new IllegalArgumentException("Produto não encontrado com ID: " + id));
+				.orElseThrow(() -> new IllegalArgumentException(PRODUCT_NOT_FOUND_MESSAGE + id));
 
-		String newMarca = product.getMarca();
-		if (dto.getMarca() != null && !dto.getMarca().trim().isEmpty()) {
-			newMarca = dto.getMarca().trim();
-		}
-		String newTitulo = product.getTitulo();
-		if (dto.getTitulo() != null && !dto.getTitulo().trim().isEmpty()) {
-			newTitulo = dto.getTitulo().trim();
-		}
+		String newMarca = resolveString(dto.getMarca(), product.getMarca());
+		String newTitulo = resolveString(dto.getTitulo(), product.getTitulo());
 
 		if ((!product.getMarca().equals(newMarca) || !product.getTitulo().equals(newTitulo))
 				&& productRepository.existsByMarcaAndTituloAndIdNot(newMarca, newTitulo, id)) {
 			throw new IllegalArgumentException("Já existe produto com a mesma marca e título: " + newMarca + " / " + newTitulo);
 		}
 
-		if (dto.getMarca() != null && !dto.getMarca().trim().isEmpty()) {
+		if (isFilled(dto.getMarca())) {
 			product.setMarca(newMarca);
 		}
-		if (dto.getTitulo() != null && !dto.getTitulo().trim().isEmpty()) {
+		if (isFilled(dto.getTitulo())) {
 			product.setTitulo(newTitulo);
 		}
-		if (dto.getDescricao() != null && !dto.getDescricao().trim().isEmpty()) {
+		if (isFilled(dto.getDescricao())) {
 			product.setDescricao(dto.getDescricao().trim());
 		}
-		if (dto.getConteudo() != null && !dto.getConteudo().trim().isEmpty()) {
+		if (isFilled(dto.getConteudo())) {
 			product.setConteudo(dto.getConteudo().trim());
 		}
-		if (dto.getImagemUrl() != null && !dto.getImagemUrl().trim().isEmpty()) {
+		if (dto.getValor() != null) {
+			product.setValor(normalizePrice(dto.getValor()));
+		}
+		if (isFilled(dto.getImagemUrl())) {
 			product.setImageUrl(dto.getImagemUrl().trim());
 		}
 
@@ -144,21 +160,34 @@ public class ProductService {
 	@Transactional
 	public void deleteProduct(UUID id) {
 		if (!productRepository.existsById(id)) {
-			throw new IllegalArgumentException("Produto não encontrado com ID: " + id);
+			throw new IllegalArgumentException(PRODUCT_NOT_FOUND_MESSAGE + id);
 		}
 		productRepository.deleteById(id);
 	}
 
 	private ProductResponseDTO toResponse(Product product) {
-		return new ProductResponseDTO(
-				product.getId(),
-				product.getMarca(),
-				product.getTitulo(),
-				product.getDescricao(),
-				product.getConteudo(),
-				product.getImageUrl(),
-				product.getCreatedAt(),
-				product.getUpdatedAt()
-		);
+		ProductResponseDTO response = new ProductResponseDTO();
+		response.setId(product.getId());
+		response.setMarca(product.getMarca());
+		response.setTitulo(product.getTitulo());
+		response.setDescricao(product.getDescricao());
+		response.setConteudo(product.getConteudo());
+		response.setValor(product.getValor());
+		response.setImagemUrl(product.getImageUrl());
+		response.setCreatedAt(product.getCreatedAt());
+		response.setUpdatedAt(product.getUpdatedAt());
+		return response;
+	}
+
+	private BigDecimal normalizePrice(BigDecimal price) {
+		return price.setScale(2, RoundingMode.HALF_UP);
+	}
+
+	private boolean isFilled(String value) {
+		return value != null && !value.trim().isEmpty();
+	}
+
+	private String resolveString(String incoming, String fallback) {
+		return isFilled(incoming) ? incoming.trim() : fallback;
 	}
 }

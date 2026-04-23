@@ -2,6 +2,7 @@ package com.gopizza.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -13,23 +14,13 @@ public class ProductResponseDTO {
 	private String titulo;
 	private String descricao;
 	private String conteudo;
+	private BigDecimal valor;
 	private String imagemUrl;
 	private LocalDateTime createdAt;
 	private LocalDateTime updatedAt;
 
 	public ProductResponseDTO() {
-	}
-
-	public ProductResponseDTO(UUID id, String marca, String titulo, String descricao, String conteudo, String imagemUrl,
-			LocalDateTime createdAt, LocalDateTime updatedAt) {
-		this.id = id;
-		this.marca = marca;
-		this.titulo = titulo;
-		this.descricao = descricao;
-		this.conteudo = conteudo;
-		this.imagemUrl = imagemUrl;
-		this.createdAt = createdAt;
-		this.updatedAt = updatedAt;
+		// Default constructor for JSON serialization/deserialization.
 	}
 
 	public UUID getId() {
@@ -70,6 +61,14 @@ public class ProductResponseDTO {
 
 	public void setConteudo(String conteudo) {
 		this.conteudo = conteudo;
+	}
+
+	public BigDecimal getValor() {
+		return valor;
+	}
+
+	public void setValor(BigDecimal valor) {
+		this.valor = valor;
 	}
 
 	public String getImagemUrl() {
