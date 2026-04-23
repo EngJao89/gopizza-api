@@ -1,7 +1,8 @@
 package com.gopizza.service;
 
 import com.gopizza.dto.CreateOrderDTO;
-import com.gopizza.dto.CreateOrderItemDTO;
+import com.gopizza.dto.CreateOrderPizzaDTO;
+import com.gopizza.dto.CreateOrderProductDTO;
 import com.gopizza.dto.OrderItemResponseDTO;
 import com.gopizza.dto.OrderResponseDTO;
 import com.gopizza.model.Order;
@@ -36,9 +37,7 @@ public class OrderService {
 		order.setDeliveryNeighborhood(dto.getDeliveryNeighborhood().trim());
 		order.setStatus(OrderStatus.PENDING);
 
-		List<OrderItem> items = getIncomingItems(dto).stream()
-				.map(this::toOrderItem)
-				.toList();
+		List<OrderItem> items = getIncomingItems(dto);
 		order.setItems(items);
 		order.setTotalAmount(calculateTotal(items));
 
@@ -60,28 +59,50 @@ public class OrderService {
 				.toList();
 	}
 
-	private OrderItem toOrderItem(CreateOrderItemDTO dto) {
+	private OrderItem toOrderItemFromPizza(CreateOrderPizzaDTO dto) {
 		OrderItem item = new OrderItem();
-		item.setProductId(dto.getProductId());
-		item.setProductName(dto.getProductName().trim());
+		item.setProductId(dto.getId());
+		item.setProductName(dto.getName().trim());
 		item.setQuantity(dto.getQuantity());
-		item.setUnitPrice(dto.getUnitPrice().setScale(2, RoundingMode.HALF_UP));
+		item.setUnitPrice(resolvePizzaUnitPrice(dto));
 		item.setLineTotal(item.getUnitPrice().multiply(BigDecimal.valueOf(item.getQuantity()))
 				.setScale(2, RoundingMode.HALF_UP));
 		return item;
 	}
 
-	private List<CreateOrderItemDTO> getIncomingItems(CreateOrderDTO dto) {
-		if (dto.getItems() != null && !dto.getItems().isEmpty()) {
-			return dto.getItems();
-		}
+	private OrderItem toOrderItemFromProduct(CreateOrderProductDTO dto) {
+		OrderItem item = new OrderItem();
+		item.setProductId(dto.getId());
+		item.setProductName(dto.getTitulo().trim());
+		item.setQuantity(dto.getQuantity());
+		item.setUnitPrice(dto.getValor().setScale(2, RoundingMode.HALF_UP));
+		item.setLineTotal(item.getUnitPrice().multiply(BigDecimal.valueOf(item.getQuantity()))
+				.setScale(2, RoundingMode.HALF_UP));
+		return item;
+	}
 
-		List<CreateOrderItemDTO> mergedItems = new ArrayList<>();
+	private BigDecimal resolvePizzaUnitPrice(CreateOrderPizzaDTO dto) {
+		BigDecimal resolved = dto.getUnitPrice();
+		if (resolved == null) {
+			throw new IllegalArgumentException("Preço da pizza é obrigatório");
+		}
+		if (resolved.compareTo(BigDecimal.ZERO) <= 0) {
+			throw new IllegalArgumentException("Preço da pizza deve ser maior que zero");
+		}
+		return resolved.setScale(2, RoundingMode.HALF_UP);
+	}
+
+	private List<OrderItem> getIncomingItems(CreateOrderDTO dto) {
+		List<OrderItem> mergedItems = new ArrayList<>();
 		if (dto.getPizzas() != null) {
-			mergedItems.addAll(dto.getPizzas());
+			mergedItems.addAll(dto.getPizzas().stream()
+					.map(this::toOrderItemFromPizza)
+					.toList());
 		}
 		if (dto.getProducts() != null) {
-			mergedItems.addAll(dto.getProducts());
+			mergedItems.addAll(dto.getProducts().stream()
+					.map(this::toOrderItemFromProduct)
+					.toList());
 		}
 		return mergedItems;
 	}
