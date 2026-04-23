@@ -36,14 +36,11 @@ public class CreateOrderDTO {
 	@Size(max = 120, message = "Bairro de entrega deve ter no máximo 120 caracteres")
 	private String deliveryNeighborhood;
 
-	@Schema(description = "Itens do pedido")
-	private List<@Valid CreateOrderItemDTO> items;
-
 	@Schema(description = "Pizzas do pedido")
-	private List<@Valid CreateOrderItemDTO> pizzas;
+	private List<@Valid CreateOrderPizzaDTO> pizzas;
 
 	@Schema(description = "Produtos do pedido")
-	private List<@Valid CreateOrderItemDTO> products;
+	private List<@Valid CreateOrderProductDTO> products;
 
 	public String getCustomerName() {
 		return customerName;
@@ -85,33 +82,25 @@ public class CreateOrderDTO {
 		this.deliveryNeighborhood = deliveryNeighborhood;
 	}
 
-	public List<CreateOrderItemDTO> getItems() {
-		return items;
-	}
-
-	public void setItems(List<CreateOrderItemDTO> items) {
-		this.items = items;
-	}
-
-	public List<CreateOrderItemDTO> getPizzas() {
+	public List<CreateOrderPizzaDTO> getPizzas() {
 		return pizzas;
 	}
 
-	public void setPizzas(List<CreateOrderItemDTO> pizzas) {
+	public void setPizzas(List<CreateOrderPizzaDTO> pizzas) {
 		this.pizzas = pizzas;
 	}
 
-	public List<CreateOrderItemDTO> getProducts() {
+	public List<CreateOrderProductDTO> getProducts() {
 		return products;
 	}
 
-	public void setProducts(List<CreateOrderItemDTO> products) {
+	public void setProducts(List<CreateOrderProductDTO> products) {
 		this.products = products;
 	}
 
 	@AssertTrue(message = "Pedido deve conter pelo menos um item")
 	public boolean hasAnyOrderItem() {
-		return isNotEmpty(items) || isNotEmpty(pizzas) || isNotEmpty(products);
+		return isNotEmpty(pizzas) || isNotEmpty(products);
 	}
 
 	private boolean isNotEmpty(List<?> list) {
