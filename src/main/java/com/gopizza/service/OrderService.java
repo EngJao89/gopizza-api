@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -31,10 +32,11 @@ public class OrderService {
 		order.setCustomerName(dto.getCustomerName().trim());
 		order.setCustomerPhone(dto.getCustomerPhone().trim());
 		order.setDeliveryAddress(dto.getDeliveryAddress().trim());
-		order.setNotes(dto.getNotes() != null ? dto.getNotes().trim() : null);
+		order.setDeliveryNumber(dto.getDeliveryNumber().trim());
+		order.setDeliveryNeighborhood(dto.getDeliveryNeighborhood().trim());
 		order.setStatus(OrderStatus.PENDING);
 
-		List<OrderItem> items = dto.getItems().stream()
+		List<OrderItem> items = getIncomingItems(dto).stream()
 				.map(this::toOrderItem)
 				.toList();
 		order.setItems(items);
@@ -69,6 +71,21 @@ public class OrderService {
 		return item;
 	}
 
+	private List<CreateOrderItemDTO> getIncomingItems(CreateOrderDTO dto) {
+		if (dto.getItems() != null && !dto.getItems().isEmpty()) {
+			return dto.getItems();
+		}
+
+		List<CreateOrderItemDTO> mergedItems = new ArrayList<>();
+		if (dto.getPizzas() != null) {
+			mergedItems.addAll(dto.getPizzas());
+		}
+		if (dto.getProducts() != null) {
+			mergedItems.addAll(dto.getProducts());
+		}
+		return mergedItems;
+	}
+
 	private BigDecimal calculateTotal(List<OrderItem> items) {
 		return items.stream()
 				.map(OrderItem::getLineTotal)
@@ -87,17 +104,18 @@ public class OrderService {
 				))
 				.toList();
 
-		return new OrderResponseDTO(
-				order.getId(),
-				order.getCustomerName(),
-				order.getCustomerPhone(),
-				order.getDeliveryAddress(),
-				order.getNotes(),
-				order.getStatus().name(),
-				order.getTotalAmount(),
-				items,
-				order.getCreatedAt(),
-				order.getUpdatedAt()
-		);
+		OrderResponseDTO response = new OrderResponseDTO();
+		response.setId(order.getId());
+		response.setCustomerName(order.getCustomerName());
+		response.setCustomerPhone(order.getCustomerPhone());
+		response.setDeliveryAddress(order.getDeliveryAddress());
+		response.setDeliveryNumber(order.getDeliveryNumber());
+		response.setDeliveryNeighborhood(order.getDeliveryNeighborhood());
+		response.setStatus(order.getStatus().name());
+		response.setTotalAmount(order.getTotalAmount());
+		response.setItems(items);
+		response.setCreatedAt(order.getCreatedAt());
+		response.setUpdatedAt(order.getUpdatedAt());
+		return response;
 	}
 }

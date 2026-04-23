@@ -39,6 +39,12 @@ public class Order {
 	@Column(name = "delivery_address", nullable = false, columnDefinition = "TEXT")
 	private String deliveryAddress;
 
+	@Column(name = "delivery_number", nullable = false, length = 20)
+	private String deliveryNumber;
+
+	@Column(name = "delivery_neighborhood", nullable = false, length = 120)
+	private String deliveryNeighborhood;
+
 	@Column(name = "notes", columnDefinition = "TEXT")
 	private String notes;
 
@@ -101,6 +107,22 @@ public class Order {
 
 	public void setDeliveryAddress(String deliveryAddress) {
 		this.deliveryAddress = deliveryAddress;
+	}
+
+	public String getDeliveryNumber() {
+		return deliveryNumber;
+	}
+
+	public void setDeliveryNumber(String deliveryNumber) {
+		this.deliveryNumber = deliveryNumber;
+	}
+
+	public String getDeliveryNeighborhood() {
+		return deliveryNeighborhood;
+	}
+
+	public void setDeliveryNeighborhood(String deliveryNeighborhood) {
+		this.deliveryNeighborhood = deliveryNeighborhood;
 	}
 
 	public String getNotes() {
