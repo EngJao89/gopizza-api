@@ -5,6 +5,7 @@ import com.gopizza.dto.CreateOrderPizzaDTO;
 import com.gopizza.dto.CreateOrderProductDTO;
 import com.gopizza.dto.OrderItemResponseDTO;
 import com.gopizza.dto.OrderResponseDTO;
+import com.gopizza.dto.UpdateOrderDTO;
 import com.gopizza.model.Order;
 import com.gopizza.model.OrderItem;
 import com.gopizza.model.OrderStatus;
@@ -37,12 +38,76 @@ public class OrderService {
 		order.setDeliveryNeighborhood(dto.getDeliveryNeighborhood().trim());
 		order.setStatus(OrderStatus.PENDING);
 
-		List<OrderItem> items = getIncomingItems(dto);
+		List<OrderItem> items = buildOrderItems(dto.getPizzas(), dto.getProducts());
 		order.setItems(items);
 		order.setTotalAmount(calculateTotal(items));
 
 		Order savedOrder = orderRepository.save(order);
 		return toResponse(savedOrder);
+	}
+
+	@Transactional
+	public OrderResponseDTO updateOrder(UUID id, CreateOrderDTO dto) {
+		Order order = orderRepository.findById(id)
+				.orElseThrow(() -> new IllegalArgumentException("Pedido não encontrado com ID: " + id));
+		OrderStatus previousStatus = order.getStatus();
+
+		order.setCustomerName(dto.getCustomerName().trim());
+		order.setCustomerPhone(dto.getCustomerPhone().trim());
+		order.setDeliveryAddress(dto.getDeliveryAddress().trim());
+		order.setDeliveryNumber(dto.getDeliveryNumber().trim());
+		order.setDeliveryNeighborhood(dto.getDeliveryNeighborhood().trim());
+		order.setStatus(previousStatus);
+
+		List<OrderItem> items = buildOrderItems(dto.getPizzas(), dto.getProducts());
+		order.setItems(items);
+		order.setTotalAmount(calculateTotal(items));
+
+		Order saved = orderRepository.save(order);
+		return toResponse(saved);
+	}
+
+	@Transactional
+	public OrderResponseDTO updateOrderPartial(UUID id, UpdateOrderDTO dto) {
+		Order order = orderRepository.findById(id)
+				.orElseThrow(() -> new IllegalArgumentException("Pedido não encontrado com ID: " + id));
+
+		if (dto.getCustomerName() != null) {
+			order.setCustomerName(dto.getCustomerName().trim());
+		}
+		if (dto.getCustomerPhone() != null) {
+			order.setCustomerPhone(dto.getCustomerPhone().trim());
+		}
+		if (dto.getDeliveryAddress() != null) {
+			order.setDeliveryAddress(dto.getDeliveryAddress().trim());
+		}
+		if (dto.getDeliveryNumber() != null) {
+			order.setDeliveryNumber(dto.getDeliveryNumber().trim());
+		}
+		if (dto.getDeliveryNeighborhood() != null) {
+			order.setDeliveryNeighborhood(dto.getDeliveryNeighborhood().trim());
+		}
+		if (dto.getNotes() != null) {
+			String n = dto.getNotes().trim();
+			order.setNotes(n.isEmpty() ? null : n);
+		}
+		if (dto.getStatus() != null) {
+			String raw = dto.getStatus().trim();
+			if (!raw.isEmpty()) {
+				order.setStatus(parseOrderStatus(raw));
+			}
+		}
+		if (dto.getPizzas() != null || dto.getProducts() != null) {
+			List<OrderItem> items = buildOrderItems(dto.getPizzas(), dto.getProducts());
+			if (items.isEmpty()) {
+				throw new IllegalArgumentException("Pedido deve conter pelo menos um item");
+			}
+			order.setItems(items);
+			order.setTotalAmount(calculateTotal(items));
+		}
+
+		Order saved = orderRepository.save(order);
+		return toResponse(saved);
 	}
 
 	@Transactional(readOnly = true)
@@ -99,19 +164,27 @@ public class OrderService {
 		return resolved.setScale(2, RoundingMode.HALF_UP);
 	}
 
-	private List<OrderItem> getIncomingItems(CreateOrderDTO dto) {
+	private List<OrderItem> buildOrderItems(List<CreateOrderPizzaDTO> pizzas, List<CreateOrderProductDTO> products) {
 		List<OrderItem> mergedItems = new ArrayList<>();
-		if (dto.getPizzas() != null) {
-			mergedItems.addAll(dto.getPizzas().stream()
+		if (pizzas != null) {
+			mergedItems.addAll(pizzas.stream()
 					.map(this::toOrderItemFromPizza)
 					.toList());
 		}
-		if (dto.getProducts() != null) {
-			mergedItems.addAll(dto.getProducts().stream()
+		if (products != null) {
+			mergedItems.addAll(products.stream()
 					.map(this::toOrderItemFromProduct)
 					.toList());
 		}
 		return mergedItems;
+	}
+
+	private OrderStatus parseOrderStatus(String raw) {
+		try {
+			return OrderStatus.valueOf(raw.toUpperCase());
+		} catch (IllegalArgumentException e) {
+			throw new IllegalArgumentException("Status inválido: " + raw);
+		}
 	}
 
 	private BigDecimal calculateTotal(List<OrderItem> items) {
