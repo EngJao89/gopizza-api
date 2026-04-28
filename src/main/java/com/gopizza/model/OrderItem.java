@@ -24,6 +24,9 @@ public class OrderItem {
 	@Column(name = "line_total", nullable = false, precision = 12, scale = 2)
 	private BigDecimal lineTotal;
 
+	@Column(name = "image_url", length = 500)
+	private String imageUrl;
+
 	public UUID getProductId() {
 		return productId;
 	}
@@ -62,5 +65,13 @@ public class OrderItem {
 
 	public void setLineTotal(BigDecimal lineTotal) {
 		this.lineTotal = lineTotal;
+	}
+
+	public String getImageUrl() {
+		return imageUrl;
+	}
+
+	public void setImageUrl(String imageUrl) {
+		this.imageUrl = imageUrl;
 	}
 }

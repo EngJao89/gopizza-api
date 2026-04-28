@@ -13,16 +13,18 @@ public class OrderItemResponseDTO {
 	private Integer quantity;
 	private BigDecimal unitPrice;
 	private BigDecimal lineTotal;
+	private String imageUrl;
 
 	public OrderItemResponseDTO() {
 	}
 
-	public OrderItemResponseDTO(UUID productId, String productName, Integer quantity, BigDecimal unitPrice, BigDecimal lineTotal) {
+	public OrderItemResponseDTO(UUID productId, String productName, Integer quantity, BigDecimal unitPrice, BigDecimal lineTotal, String imageUrl) {
 		this.productId = productId;
 		this.productName = productName;
 		this.quantity = quantity;
 		this.unitPrice = unitPrice;
 		this.lineTotal = lineTotal;
+		this.imageUrl = imageUrl;
 	}
 
 	public UUID getProductId() {
@@ -63,5 +65,13 @@ public class OrderItemResponseDTO {
 
 	public void setLineTotal(BigDecimal lineTotal) {
 		this.lineTotal = lineTotal;
+	}
+
+	public String getImageUrl() {
+		return imageUrl;
+	}
+
+	public void setImageUrl(String imageUrl) {
+		this.imageUrl = imageUrl;
 	}
 }

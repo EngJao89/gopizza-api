@@ -135,6 +135,7 @@ public class OrderService {
 		OrderItem item = new OrderItem();
 		item.setProductId(dto.getId());
 		item.setProductName(dto.getName().trim());
+		item.setImageUrl(dto.getImageUrl());
 		item.setQuantity(dto.getQuantity());
 		item.setUnitPrice(resolvePizzaUnitPrice(dto));
 		item.setLineTotal(item.getUnitPrice().multiply(BigDecimal.valueOf(item.getQuantity()))
@@ -146,6 +147,7 @@ public class OrderService {
 		OrderItem item = new OrderItem();
 		item.setProductId(dto.getId());
 		item.setProductName(dto.getTitulo().trim());
+		item.setImageUrl(dto.getImagemUrl());
 		item.setQuantity(dto.getQuantity());
 		item.setUnitPrice(dto.getValor().setScale(2, RoundingMode.HALF_UP));
 		item.setLineTotal(item.getUnitPrice().multiply(BigDecimal.valueOf(item.getQuantity()))
@@ -201,7 +203,8 @@ public class OrderService {
 						item.getProductName(),
 						item.getQuantity(),
 						item.getUnitPrice(),
-						item.getLineTotal()
+						item.getLineTotal(),
+						item.getImageUrl()
 				))
 				.toList();
 
